@@ -1,0 +1,52 @@
+.highlight:not(.djs-connection) .djs-visual > :nth-child(1) {
+  fill: aqua !important; /* color elements as green */
+}
+
+.highlight-flow-hover:where(.djs-connection):hover .djs-outline { /*.highlight-flow > .djs-outline */
+  stroke: aqua !important;
+  stroke-width: 2px;
+}
+
+.highlight-flow:where(.djs-connection) .djs-visual > :nth-child(1) {
+  stroke: aqua !important;
+}
+
+.highlight-history:not(.djs-connection) .djs-visual > :nth-child(1) {
+  fill: #1CAC78 !important; /* color elements as green */
+}
+
+.highlight-flow-history:where(.djs-connection) .djs-visual > :nth-child(1) {
+  stroke: #1CAC78 !important;
+}
+
+.highlight-current:not(.djs-connection) .djs-visual > :nth-child(1) {
+  fill: #F0E68C !important; /* color elements as green */
+}
+
+.highlight-prediction:not(.djs-connection) .djs-visual > :nth-child(1) {
+  fill: #ebe703 !important; /* color elements as green */
+}
+
+.highlight-prediction.highlight:not(.djs-connection) .djs-visual > :nth-child(1) {
+  fill: aqua !important; /* color elements as green */
+}
+
+.highlight-evidence:not(.djs-connection) .djs-visual > :nth-child(1) {
+  fill: #e85656 !important; /* color elements as green */
+}
+
+.highlight-evidence.highlight:not(.djs-connection) .djs-visual > :nth-child(1) {
+  fill: aqua !important; /* color elements as green */
+}
+
+.pointer {
+  cursor: pointer;
+}
+
+.hidden {
+  display: none;
+}
+
+.btn {
+  margin-right: 5px;
+}

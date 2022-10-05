@@ -1,0 +1,77 @@
+<div class="container" style="width: 80%;">
+  <h1>Editing Project: {{ project?.make + " " + project?.model + " " + project?.year }}</h1>
+  <form style="padding-top: 25px;">
+
+    <div class="form-group">
+      <label for="make">Make</label>
+      <input type="text" class="form-control" id="make" value="{{ project?.make }}" required>
+      <small id="makeEmpty" class="form-text" style="color:red"></small>
+    </div>
+
+    <div class="form-group">
+      <label for="model">Type/Model</label>
+      <input type="text" class="form-control" id="model" value="{{ project?.model }}" required>
+      <small id="modelEmpty" class="form-text" style="color:red"></small>
+    </div>
+
+    <div class="form-group">
+      <label for="year">Year of Manufacture</label>
+      <input type="text" class="form-control" id="year" value="{{ project?.year }}" required>
+      <small id="yearEmpty" class="form-text" style="color:red"></small>
+    </div>
+
+    <div class="form-group">
+      <label for="licencePlate">License Plate</label>
+      <input type="text" class="form-control" id="licencePlate" value="{{ project?.licencePlate }}" required>
+      <small id="licencePlateEmpty" class="form-text" style="color:red"></small>
+    </div>
+
+    <div class="form-group">
+      <label for="country">Country</label>
+      <input type="text" class="form-control" id="country" value="{{ project?.country }}" required>
+      <small id="countryEmpty" class="form-text" style="color:red"></small>
+    </div>
+
+    <div class="form-group">
+      <label for="chassisNo">Chassis/Frame Number</label>
+      <input type="text" class="form-control" id="chassisNo" value="{{ project?.chassisNo }}" required>
+      <small id="chassisNoEmpty" class="form-text" style="color:red"></small>
+    </div>
+
+    <div class="form-group">
+      <label for="engineNo">Engine Make and Number</label>
+      <input type="text" class="form-control" id="engineNo" value="{{ project?.engineNo }}" required>
+      <small id="engineNoEmpty" class="form-text" style="color:red"></small>
+    </div>
+
+    <div class="form-group">
+      <label for="ownerEmail">Owner Email</label>
+      <select class="form-control" id="ownerEmail" required>
+        <option value="" disabled selected>Select the owner's email</option>
+        <option *ngFor="let user of users">{{user.email}}</option>
+      </select>
+      <small id="ownerEmailEmpty" class="form-text" style="color:red"></small>
+    </div>
+
+    <!--<div class="form-group">
+    <label for="ownerEmail">Owner Email</label>
+    <input type="text" class="form-control" id="ownerEmail" value="{{ project?.ownerEmail }}" required>
+    <small id="ownerEmailEmpty" class="form-text" style="color:red"></small>
+  </div>-->
+
+    <div class="form-group">
+      <label for="pinterestUrl">Pinterest Board Access Url</label>
+      <input type="text" class="form-control" id="pinterestUrl" value="{{ project?.pinterestBoardAccessUrl }}" required>
+      <small id="pinterestUrlEmpty" class="form-text" style="color:red"></small>
+    </div>
+
+    <div class="form-group">
+      <label for="photo">Car Photo</label> <br />
+      <input #imageInput type="file" id="photo" accept=".jpeg, .jpg, .png" (change)="processFile(imageInput.files)">
+      <small id="photoEmpty" class="form-text" style="color:red"></small>
+    </div>
+
+    <button type="submit" class="btn btn-secondary btn-lg" (click)="onSubmit()">Edit</button>
+
+  </form>
+</div>

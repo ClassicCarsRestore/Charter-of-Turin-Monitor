@@ -1,0 +1,99 @@
+<div class="container" style="width: 80%;">
+  <h1>Start a new Project</h1>
+  <form style="padding-top: 25px;" *ngIf="project ? false : true">
+
+    <div class="form-group">
+      <label for="make">Make</label>
+      <input type="text" class="form-control" id="make" required>
+      <small id="makeEmpty" class="form-text" style="color:red"></small>
+    </div>
+
+    <div class="form-group">
+      <label for="model">Type/Model</label>
+      <input type="text" class="form-control" id="model" required>
+      <small id="modelEmpty" class="form-text" style="color:red"></small>
+    </div>
+
+    <div class="form-group">
+      <label for="year">Year of Manufacture</label>
+      <input type="text" class="form-control" id="year" required>
+      <small id="yearEmpty" class="form-text" style="color:red"></small>
+    </div>
+
+    <div class="form-group">
+      <label for="licencePlate">License Plate</label>
+      <input type="text" class="form-control" id="licencePlate" required>
+      <small id="licencePlateEmpty" class="form-text" style="color:red"></small>
+    </div>
+
+    <div class="form-group">
+      <label for="country">Country</label>
+      <input type="text" class="form-control" id="country" required>
+      <small id="countryEmpty" class="form-text" style="color:red"></small>
+    </div>
+
+    <div class="form-group">
+      <label for="chassisNo">Chassis/Frame Number</label>
+      <input type="text" class="form-control" id="chassisNo" required>
+      <small id="chassisNoEmpty" class="form-text" style="color:red"></small>
+    </div>
+
+    <div class="form-group">
+      <label for="engineNo">Engine Make and Number</label>
+      <input type="text" class="form-control" id="engineNo" required>
+      <small id="engineNoEmpty" class="form-text" style="color:red"></small>
+    </div>
+
+    <div class="form-group">
+      <label for="ownerEmail">Owner Email</label>
+      <select class="form-control" id="ownerEmail" required>
+        <option value="" disabled selected>Select the owner's email</option>
+        <option *ngFor="let user of users">{{user.email}}</option>
+      </select>
+      <small id="ownerEmailEmpty" class="form-text" style="color:red"></small>
+    </div>
+
+    <div class="form-group">
+      <label for="clientExpectation">Type of Intervention</label>
+      <select class="form-control" id="clientExpectation" required>
+        <option>Preservation</option>
+        <option>Cosmetic Restoration</option>
+        <option>Traditional Restoration</option>
+        <option>Concour d'Elegance Restoration</option>
+        <!--<option>Traditional Mixed</option>
+      <option>Concour d'Elegance Mixed</option>-->
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="photo">Car Photo</label> <br />
+      <input #imageInput type="file" id="photo" accept=".jpeg, .jpg, .png" (change)="processFile(imageInput.files)">
+      <small id="photoEmpty" class="form-text" style="color:red"></small>
+    </div>
+
+    <div class="form-group form-check">
+      <input type="checkbox" class="form-check-input" id="originalMaterials">
+      <label class="form-check-label" for="originalMaterials">Original materials/substracts available</label>
+    </div>
+
+    <div class="form-group form-check">
+      <input type="checkbox" class="form-check-input" id="carDocuments">
+      <label class="form-check-label" for="carDocuments">Car document available</label>
+    </div>
+
+    <button type="submit" class="btn btn-secondary btn-lg" (click)="onContinue()">Continue</button>
+
+  </form>
+
+  <form style="padding-top: 25px;" *ngIf="project ? true : false">
+
+    <div class="form-group">
+      <label for="pinterestUrl">Pinterest Board Access Url</label>
+      <input type="text" class="form-control" id="pinterestUrl" required>
+      <small id="pinterestUrlEmpty" class="form-text" style="color:red"></small>
+    </div>
+
+    <button type="submit" class="btn btn-secondary btn-lg" (click)="onSubmit()">Submit</button>
+
+  </form>
+</div>

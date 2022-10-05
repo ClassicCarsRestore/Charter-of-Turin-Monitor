@@ -1,0 +1,14 @@
+<div class="row" style="height: 100%;">
+  <div id="diagram-viewer-col" class="col">
+    <div #ref class="diagram-container"></div>
+  </div>
+  <div id="task-date-picker-col" class="date-picker-tab col-3" *ngIf="selectedNode != null">
+    <app-date-picker [selectedNode]="selectedNode" (closeDatePickerTrigger)="closeButton()"></app-date-picker>
+  </div>
+  <div id="task-detail-col" class="date-picker-tab col-3" *ngIf="selectedNode == null && selectedTask != null">
+    <app-task-details [selectedTask]="selectedTask" (closeTaskDetailTrigger)="closeButton()"></app-task-details>
+  </div>
+</div>
+
+
+

@@ -1,0 +1,46 @@
+<div class="row">
+  <div class="col" style="margin: auto">
+    <h1 id="tableLabel">Closed Projects</h1>
+  </div>
+</div>
+
+<p *ngIf="!projects"><em>Loading...</em></p>
+
+<div *ngIf="projects" style="padding-top: 10px;">
+
+  <div *ngIf="projects.length == 0">
+    <h6>No projects are currently complete.</h6>
+  </div>
+  <div class="search-bar" *ngIf="projects.length > 0">
+    <input class="form-control" type="text" placeholder="Search through projects" [(ngModel)]="search" (input)="changeVisibleProjects()">
+  </div>
+  <div class="projects-container" *ngIf="visibleProjects.length != 0 && projects">
+    <div class="card w-100" *ngFor="let project of visibleProjects" style="background-color: rgba(0,0,0,.03); margin-bottom: 0.3%;">
+      <div class="card-body">
+        <h5 class="card-title"><b>{{ this.project.make + " " + this.project.model + " " + this.project.year }}</b></h5>
+  
+        <div class="row">
+          <div class="col" style="margin: auto">
+            <p class="card-text"><b>Licence Plate:</b> {{ project.licencePlate }}</p>
+          </div>
+          <div class="col" style="margin: auto">
+            <p class="card-text">
+              <b>Status: </b>
+              <a style="color:red;" *ngIf="project.isComplete">Finished</a>
+              <a style="color:green;" *ngIf="!project.isComplete">Active</a>
+            </p>
+          </div>
+          <div class="col" style="margin: auto">
+            <p class="card-text"><b>Completion date:</b> {{ format(project.endDate) }}</p>
+          </div>
+          <div class="col">
+            <a class="btn btn-primary" (click)="goToProjectDetails(project)" style="float:right">Open Project</a>
+          </div>
+        </div>
+  
+      </div>
+    </div>
+  </div>
+
+  
+</div>

@@ -1,0 +1,9 @@
+.pathTask:hover {
+  text-decoration: underline;
+  color: blue;
+  cursor: pointer;
+}
+
+.selectedTask {
+  font-weight: bold;
+}

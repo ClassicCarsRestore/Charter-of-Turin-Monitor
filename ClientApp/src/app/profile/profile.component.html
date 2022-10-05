@@ -1,0 +1,74 @@
+<mat-accordion class="headers-align">
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        Edit Profile Details
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+
+    <form [formGroup]="editDetailsForm" (ngSubmit)="editDetails(editDetailsForm)" autocomplete="off">
+      <mat-form-field appearance="fill">
+        <mat-label>Name</mat-label>
+        <input matInput formControlName="name" value="{{ name }}" autocomplete="off">
+      </mat-form-field>
+
+      <mat-form-field appearance="fill">
+        <mat-label>Phone Number</mat-label>
+        <input matInput formControlName="phone" value="{{ phone }}" autocomplete="off">
+      </mat-form-field>
+
+      <mat-form-field class="full-width" appearance="fill">
+        <mat-label>Address</mat-label>
+        <textarea matInput formControlName="address" value="{{address}}"></textarea>
+      </mat-form-field>
+
+      <mat-action-row>
+        <button mat-button color="primary" type="submit" [disabled]="!editDetailsForm.valid">Edit Details</button>
+      </mat-action-row>
+    </form>
+  </mat-expansion-panel>
+
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        Change Password
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+
+    <form [formGroup]="changePasswordForm" (ngSubmit)="changePassword(changePasswordForm)" autocomplete="off">
+      <mat-form-field appearance="fill" [hideRequiredMarker]=true>
+        <mat-label>Enter old password</mat-label>
+        <input matInput formControlName="oldPassword" [type]="oldHide ? 'password' : 'text'" autocomplete="off" required>
+        <button mat-icon-button matSuffix type="button" (click)="oldHide = !oldHide" [attr.aria-label]="'Hide password'">
+          <mat-icon>{{oldHide ? 'visibility_off' : 'visibility'}}</mat-icon>
+        </button>
+        <mat-error *ngIf="this.changePasswordForm.get('oldPassword')?.invalid">{{"Password too short"}}</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="fill" [hideRequiredMarker]=true>
+        <mat-label>Enter new password</mat-label>
+        <input matInput formControlName="password" [type]="hide ? 'password' : 'text'" autocomplete="off" required>
+        <button mat-icon-button matSuffix type="button" (click)="hide = !hide" [attr.aria-label]="'Hide password'">
+          <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
+        </button>
+        <mat-error *ngIf="this.changePasswordForm.get('password')?.invalid">{{"Password too short"}}</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="fill" [hideRequiredMarker]=true>
+        <mat-label>Confirm new password</mat-label>
+        <input matInput formControlName="confirmPassword" [type]="hideConfirm ? 'password' : 'text'" [errorStateMatcher]="matcher" autocomplete="off" required>
+        <button mat-icon-button matSuffix type="button" (click)="hideConfirm = !hideConfirm" [attr.aria-label]="'Hide password'">
+          <mat-icon>{{hideConfirm ? 'visibility_off' : 'visibility'}}</mat-icon>
+        </button>
+        <mat-error *ngIf="changePasswordForm.hasError('notSame')">
+          Passwords do not match
+        </mat-error>
+      </mat-form-field>
+
+      <mat-action-row>
+        <button mat-button color="primary" type="submit" [disabled]="!changePasswordForm.valid">Change Password</button>
+      </mat-action-row>
+    </form>
+  </mat-expansion-panel>
+
+</mat-accordion>

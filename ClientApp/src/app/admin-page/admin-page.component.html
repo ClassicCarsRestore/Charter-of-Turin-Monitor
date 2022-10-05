@@ -1,0 +1,115 @@
+<mat-accordion class="headers-align">
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        Create a new Account
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+
+    <form [formGroup]="newAccountForm" (ngSubmit)="createAccount(newAccountForm)" autocomplete="off">
+      <mat-form-field appearance="fill" [hideRequiredMarker]=true>
+        <mat-label>Enter the email</mat-label>
+        <input matInput formControlName="email" placeholder="email@address.com" autocomplete="off">
+        <mat-error *ngIf="this.newAccountForm.get('email')?.invalid">{{getErrorMessage()}}</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="fill" [hideRequiredMarker]=true>
+        <mat-label>Enter the name</mat-label>
+        <input matInput formControlName="name" placeholder="FirstName LastName" autocomplete="off">
+        <mat-error *ngIf="this.newAccountForm.get('name')?.invalid">{{"You must enter a name"}}</mat-error>
+      </mat-form-field>
+
+      <!--<mat-form-field appearance="fill" [hideRequiredMarker]=true>
+        <mat-label>Enter the password</mat-label>
+        <input matInput formControlName="password" [type]="hide ? 'password' : 'text'" autocomplete="off">
+        <button mat-icon-button matSuffix type="button" (click)="hide = !hide" [attr.aria-label]="'Hide password'">
+          <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
+        </button>
+        <mat-error *ngIf="this.newAccountForm.get('password')?.invalid">{{"Password too short"}}</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="fill" [hideRequiredMarker]=true>
+        <mat-label>Confirm the password</mat-label>
+        <input matInput formControlName="confirmPassword" [type]="hideConfirm ? 'password' : 'text'" [errorStateMatcher]="matcher" autocomplete="off">
+        <button mat-icon-button matSuffix type="button" (click)="hideConfirm = !hideConfirm" [attr.aria-label]="'Hide password'">
+          <mat-icon>{{hideConfirm ? 'visibility_off' : 'visibility'}}</mat-icon>
+        </button>
+        <mat-error *ngIf="newAccountForm.hasError('notSame')">
+          Passwords do not match
+        </mat-error>
+      </mat-form-field>-->
+
+      <mat-form-field appearance="fill" [hideRequiredMarker]=true>
+        <mat-label>Account role</mat-label>
+        <mat-select formControlName="accountRole">
+          <mat-option value="owner">Owner</mat-option>
+          <mat-option value="manager">Manager</mat-option>
+          <mat-option value="admin">Admin</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-action-row>
+        <button mat-button color="primary" type="submit" [disabled]="!newAccountForm.valid">Create new Account</button>
+      </mat-action-row>
+    </form>
+  </mat-expansion-panel>
+
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        Delete an Account
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+
+    <form [formGroup]="delAccountForm" (ngSubmit)="delAccount(delAccountForm)" autocomplete="off">
+      <mat-form-field appearance="fill" [hideRequiredMarker]=true>
+        <mat-label>Account</mat-label>
+        <mat-select formControlName="account">
+          <mat-option *ngFor="let user of users" [value]="user">{{user.email + " (" + user.role + ")"}}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-action-row>
+        <button mat-button color="primary" type="submit" [disabled]="!delAccountForm.valid">Delete Account</button>
+      </mat-action-row>
+    </form>
+  </mat-expansion-panel>
+
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        Send Camera Hub Credentials
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+
+    <form [formGroup]="sendCredentialsForm" (ngSubmit)="sendCredentials(sendCredentialsForm)" autocomplete="off">
+      <mat-form-field appearance="fill" [hideRequiredMarker]=true>
+        <mat-label>Project</mat-label>
+        <mat-select formControlName="project">
+          <mat-option *ngFor="let project of projects" [value]="project">{{project.make + " " + project.model + " " + project.year + " (" + project.licencePlate + ")"}}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="fill" [hideRequiredMarker]=true>
+        <mat-label>Choose a start date and time</mat-label>
+        <input matInput formControlName="startDateTime" [ngxMatDatetimePicker]="picker" placeholder="Choose a date" [min]="minDate">
+        <mat-datepicker-toggle matSuffix [for]="$any(picker)"></mat-datepicker-toggle>
+        <ngx-mat-datetime-picker #picker [stepMinute]="stepMinute" [defaultTime]="[defaultDate.getHours(), defaultDate.getMinutes()]">
+        </ngx-mat-datetime-picker>
+      </mat-form-field>
+
+      <mat-form-field appearance="fill" [hideRequiredMarker]=true>
+        <mat-label>Choose an end date and time</mat-label>
+        <input matInput formControlName="endDateTime" [ngxMatDatetimePicker]="picker1" placeholder="Choose a date" [min]="minDate">
+        <mat-datepicker-toggle matSuffix [for]="$any(picker1)"></mat-datepicker-toggle>
+        <ngx-mat-datetime-picker #picker1 [stepMinute]="stepMinute" [defaultTime]="[defaultDate.getHours(), defaultDate.getMinutes()]">
+        </ngx-mat-datetime-picker>
+      </mat-form-field>
+
+      <mat-action-row>
+        <button mat-button color="primary" type="submit" [disabled]="!sendCredentialsForm.valid">Send Credentials</button>
+      </mat-action-row>
+    </form>
+  </mat-expansion-panel>
+
+</mat-accordion>

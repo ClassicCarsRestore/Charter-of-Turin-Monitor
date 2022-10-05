@@ -1,0 +1,3 @@
+<span [ngClass]="selectedNode == node.self.instanceId ? 'selectedTask' : 'pathTask'" (click)="changeDiagram(node)">{{node.self.name}}</span>
+<span *ngIf="node.children.length > 1">/(<span *ngFor="let n of node.children; let i = index"><span *ngIf="i != 0"> | </span><app-tree-node [node]="n" [selectedNode]="selectedNode" (diagramChange)="changeDiagram($event)"></app-tree-node></span>)</span>
+<span *ngIf="node.children.length == 1">/<span *ngFor="let n of node.children"><app-tree-node [node]="n" [selectedNode]="selectedNode" (diagramChange)="changeDiagram($event)"></app-tree-node></span></span> 

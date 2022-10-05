@@ -1,0 +1,16 @@
+<div class="row">
+  <div class="col-sm-10">
+    <p><b>Diagram path: </b><app-tree-node [node]="root" [selectedNode]="openDefinition" (diagramChange)="changeDiagram($event)"></app-tree-node></p>
+  </div>
+  <div class="col-sm-2">
+    <button class="btn btn-primary" (click)="zoomOut()" [disabled]="openDefinition == root" style="float:right">Zoom out</button>
+  </div>
+</div>
+
+<div class="diagram-parent" style="background-color: lightgray; height: 60vh;">
+  <div class="row" style="height: 100%;">
+    <div id="diagram-viewer-col" class="col">
+      <div #ref class="diagram-container"></div>
+    </div>
+  </div>
+</div>

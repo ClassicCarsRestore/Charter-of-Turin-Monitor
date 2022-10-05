@@ -1,0 +1,40 @@
+﻿version: '3.1'
+
+services:
+  mongo:
+    image: mongo
+    restart: always
+    ports:
+      - 27017:27017
+    volumes:
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: toor
+      ME_CONFIG_BASICAUTH_USERNAME: root
+      ME_CONFIG_BASICAUTH_PASSWORD: toor
+    depends_on:
+      - mongo
+  tasklist:
+    build: .
+    restart: always
+    ports:
+      - 5000:80
+    volumes:
+      - ./data:/app/data
+    environment:
+      ProjectsDatabaseSettings__Host: mongo
+      TasksDatabaseSettings__Host: mongo
+      SensorTasksDatabaseSettings__Host: mongo
+      CredentialsDatabaseSettings__Host: mongo
+      ActivityMapsDatabaseSettings__Host: mongo
+      LoginCredentialsDatabaseSettings__Host: mongo
+      PinterestDatabaseSettings__Host: mongo
+      CameraHubDatabaseSettings__Host: mongo
+    depends_on:
+      - mongo

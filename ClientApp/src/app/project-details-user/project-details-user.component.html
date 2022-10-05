@@ -1,0 +1,63 @@
+<p *ngIf="!project"><em>Loading Project...</em></p>
+
+<div *ngIf="project">
+
+  <div class="row">
+    <div class="col">
+      <h1 id="projectName">{{ this.project?.make + " " + this.project?.model + " " + this.project?.year }}</h1>
+    </div>
+    <div class="col" style="margin: auto; padding-right: 30px;" *ngIf="project?.isComplete">
+      <!--<a id="download-history" class="btn btn-secondary" (click)="downloadProjectHistory()" style="float:right">Download</a>-->
+      <a id="download-evidence" class="btn btn-secondary" (click)="downloadEvidence()" style="float:right">Download Evidence PDF</a>
+    </div>
+  </div>
+
+
+  <div class="col" id="projectDescription">
+    <div class="row">
+      <div class="col">
+        <p><b>Licence Plate: </b>{{ this.project?.licencePlate }}</p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <p><b>Started on: </b>{{ format(this.project!.startDate) }}</p>
+      </div>
+    </div>
+    <div class="row" *ngIf="project.isComplete">
+      <div class="col">
+        <p><b>Completed on: </b>{{ format(this.project!.endDate) }}</p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <p><b>Pinterest Access URL: </b><a href="{{this.project?.pinterestBoardUrl}}" target="_blank">{{this.project?.pinterestBoardAccessUrl}}</a></p>
+      </div>
+    </div>
+  </div>
+  <table mat-table [dataSource]="dataSource" class="mat-elevation-z8 tasks-table">
+    <ng-container *ngFor="let column of columns" [matColumnDef]="column.columnDef">
+      <span *ngIf="column.columnDef!='photos'">
+        <th mat-header-cell *matHeaderCellDef>
+          {{column.header}}
+        </th>
+        <td mat-cell *matCellDef="let row">
+          {{column.cell(row)}}
+        </td>
+      </span>
+      <span *ngIf="column.columnDef=='photos'">
+        <th mat-header-cell *matHeaderCellDef>
+          {{column.header}}
+        </th>
+        <td mat-cell *matCellDef="let row">
+          <span *ngIf="column.cell(row)!='null'">
+            <button mat-mini-fab (click)="openTab(column.cell(row))"><mat-icon>camera_alt</mat-icon></button>
+          </span>
+        </td>
+      </span>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+</div>

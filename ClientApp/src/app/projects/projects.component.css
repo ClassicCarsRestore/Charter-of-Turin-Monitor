@@ -1,0 +1,11 @@
+.projects-container {
+  height: 75vh;
+  flex: 1;
+  overflow-y: auto;
+  position: relative;
+}
+
+.search-bar {
+  margin-bottom: 1%; 
+  width: 20%;
+}

@@ -1,0 +1,139 @@
+<p *ngIf="!project"><em>Loading Project...</em></p>
+
+<div *ngIf="project">
+
+  <div class="row">
+    <div class="col">
+      <h1 id="projectName">{{ this.project?.make + " " + this.project?.model + " " + this.project?.year }}</h1>
+    </div>
+    <div class="col" style="margin: auto; padding-right: 30px;">
+      <!--<a id="download-history" class="btn btn-secondary" (click)="downloadProjectHistory()" style="float:right">Download</a>-->
+      <a id="download-evidence" class="btn btn-secondary" (click)="downloadEvidence()" style="float:right">Download Evidence PDF</a>
+    </div>
+  </div>
+  
+
+  <div class="col" id="projectDescription">
+    <div class="row" style="margin-bottom: 15px;" *ngIf="(loggedInRole$ | async) == 'admin'">
+      <div class="col">
+        <a id="edit-project" class="btn btn-success" (click)="editProject(project)">Edit Project</a>
+        <a id="delete-project" class="btn btn-danger" (click)="deleteProject()">Delete Project</a>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <p><b>Licence Plate: </b>{{ this.project?.licencePlate }}</p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <p><b>Started on: </b>{{ format(this.project?.startDate) }}</p>
+      </div>
+    </div>
+    <div class="row" *ngIf="project.isComplete">
+      <div class="col">
+        <p><b>Completed on: </b>{{ format(this.project?.endDate) }}</p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <p><b>Pinterest URL: </b><a href="{{this.project?.pinterestBoardUrl}}" target="_blank">{{this.project?.pinterestBoardUrl}}</a></p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-sm-9">
+        <p *ngIf="!project.isComplete"><b>Task awaiting approval: </b><app-tree-node [node]="root" [selectedNode]="selectedNode" (diagramChange)="changeDiagram($event)"></app-tree-node></p>
+      </div>
+      <div class="col-sm-3">
+        <button class="btn btn-primary" (click)="submitTasks()" [disabled]="!diagramComponent || diagramComponent.nodesDisableable.length == 0" style="float:right" *ngIf="!project.isComplete">Submit tasks</button>
+        <button class="btn btn-primary" (click)="zoomOut()" [disabled]="selectedNode == root?.self?.instanceId" style="float:right">Zoom out</button>
+        <!--<button class="btn btn-primary" (click)="changeDiagram(selectedTask + 1)" [disabled]="selectedTask == (tasksPath? tasksPath.length: 0) - 1" style="float:right">Zoom In</button>-->
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <div class="diagram-parent" style="background-color: lightgray; height: 60vh;" *ngIf="selectedNode">
+    <app-diagram [processInstanceId]="''+selectedNode" [caseInstanceId]="'' + project?.caseInstanceId" (importDone)="handleImported($event)" (callDiagram)="callDiagram($event)"></app-diagram>
+  </div>
+
+  <hr *ngIf="!project.isComplete">
+
+  <div id="instructions" *ngIf="!project.isComplete">
+    <h4>Instructions of use:</h4>
+    <br>
+    <p><b>Selecting elements:</b></p>
+    <ul>
+      <li>An element can be selected by clicking directly on top of it or in its very near vicinity.</li>
+      <li>After clicking an element that could be selected, it will change color to <code style="color: aqua;">blue</code>, indicating that it has 
+        been selected.</li>
+      <li>The 'clickable' elements in the diagram are the Tasks (which are represented by the boxes with activity descriptions); and the Sequence Flows
+        (which are the arrows leading from and to Tasks and Gateways).</li>
+    </ul>
+    <p><b>Selecting a path:</b></p> 
+    <ul>
+      <li>During the selection of elements, the user will encounter 'Gateway' elements. These are some diamond-shaped 'boxes' with a symbol inside 
+        which have Sequence Flows leading to and from it.</li>
+      <li>Gateways represent decisions in the diagram, meaning that depending on the symbol represented inside the Gateway different actions will be
+        available.</li>
+        <ul>
+          <li><strong>Exclusive Gateways</strong> are the ones represented with an 'X' inside them. On these elements, it's only possible to <strong>choose one</strong> Sequence Flow 
+            leading from it.</li>
+          <li>
+            <strong>Inclusive Gateways</strong> are the ones represented with an 'O' inside them. On these elements, it's possible to <strong>choose one or more</strong> Sequence
+            Flows leading from it.
+          </li>
+          <li>
+            <strong>Parallel Gateways</strong> are the ones represented with an '+' inside them. On these elements, the user has to <strong>choose every</strong> Sequence Flow
+            leading from it to continue.
+          </li>
+        </ul>
+    </ul>
+    <p><b>Changing the details:</b></p>
+    <ul>
+      <li>After selecting an element, the user can <strong>right-click</strong> the element and a detail side panel will appear.</li>
+      <li>In the panel, fields can be filled to change the start and completion dates and to add a comment.</li>
+      <li>By default, a start and completion date is set as the current date.</li>
+      <li>Media (photos and videos) can also be added to each task.</li>
+      <li>Media added for Report will be included in the output PDF generated, while Media added as Extra will appear on the Pinterest board, but not on the PDF.</li>
+      <li>
+        To close the side panel, the user can either click the 'X' located on the top-right corner of the panel or right-click an empty section
+        of the diagram viewer and all the changes will be saved.
+      </li>
+      <li>The same fields can be updated on already completed tasks by right-clicking on them and clicking the <code style="color: #0069d9;">Submit Updates</code> button.
+        These tasks also include an icon that redirects directly to the Pinterest board section of the specific task.</li>
+    </ul>
+    <p><b>Element colors:</b></p>
+    <ul>
+      <li>Uncolored elements are the ones that either haven't been selected yet or that aren't available for selection.</li>
+      <li><code style="color: aqua;">Blue</code> elements are the ones being selected in the ongoing session and are awaiting a possible
+        submission to turn into 'history' elements and be colored <code style="color: #1CAC78;">green</code>.</li>
+      <li><code style="color: #1CAC78;">Green</code> elements are the ones that were previously submitted. These elements show us the previous paths used in earlier sessions.</li>
+      <li><code style="color: #F0E68C;">Yellow</code> elements are the elements that match the activities detected by the sensors. These elements
+        have their start and completion date and time filled automatically according to the sensors' information, although this can still be changed
+        in the date picker panel after selection.</li>
+      <li><code style="color: #e85656;">Red</code> elements are the ones that produce evidence that should be uploaded to appear in the final report.</li>
+    </ul>
+    <p><b>Submitting a selection:</b></p>
+    <ul>
+      <li>After doing a task selection, it's possible to click the button <code style="color: #0069d9;">Submit tasks</code> to send the selected tasks 
+        to the server for submission.</li>
+      <li>After clicking the <code style="color: #0069d9;">Submit tasks</code> button the diagram will refresh to either account for the new elements
+        submitted in that action or retrieve the new diagram if the current one has reached its end.</li>
+    </ul>
+    <p><b>Downloading the Project File:</b></p>
+    <ul>
+      <li>By clicking the <strong>Download Evidence PDF</strong> button, a PDF file is downloaded containing the details of the car and all the evidence added during the Restoration/Conservation process.</li>
+    </ul>
+    <p><b>Diagram navigation and Zoom:</b></p>
+    <ul>
+      <li>The diagram default location is generated automatically to fit the entire diagram in the viewing area. It's possible to move the diagram by simply 
+        clicking and dragging within the canvas and to zoom by simultaneously clicking the 'Ctrl' key and scrolling the mouse wheel.</li>
+      <li>The diagram can be navigated by clicking on a task in the Path or on the <code style="color: #0069d9;">Zoom Out</code> button.
+      It can also be changed by right-clicking on a subprocess node (represented with a thick border and a plus icon) that is being completed or has already been completed.</li>
+    </ul>
+  </div>
+  
+  
+</div>

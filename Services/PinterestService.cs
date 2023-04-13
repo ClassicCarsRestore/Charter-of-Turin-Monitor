@@ -201,7 +201,10 @@ namespace tasklist.Services
 
         public Task<HttpResponseMessage> CreateBoard(ProjectFormDTO projectForm)
         {
-            var projectName = projectForm.Make + " " + projectForm.Model + " " + projectForm.LicencePlate + " " + projectForm.StartDate.ToString("yy/MM/dd");
+            var projectName = projectForm.Make + " " + projectForm.Model + " " + projectForm.LicencePlate;
+            if (projectName.Length > 41)
+                projectName = projectName.Substring(0, 41);
+            projectName += " " + projectForm.StartDate.ToString("yy/MM/dd");
 
             EncodingProvider provider = CodePagesEncodingProvider.Instance;
             Encoding.RegisterProvider(provider);

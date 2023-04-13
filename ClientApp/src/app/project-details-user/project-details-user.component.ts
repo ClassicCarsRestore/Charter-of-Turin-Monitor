@@ -84,12 +84,18 @@ export class ProjectDetailsUserComponent implements OnInit {
   }
 
   downloadEvidence() {
-    this.http.get(this.baseUrl + 'api/Projects/Evidence/' + this.project?.caseInstanceId, { headers: Token.getHeader().headers, responseType: 'text' }).subscribe(result => {
-      var tmp = document.createElement("a");
-      tmp.href = "data:image/png;base64," + result;
-      tmp.download = this.project?.make + " " + this.project?.model + " " + this.project?.year + ".pdf";
-      tmp.click();
-    })
+    try {
+      document.body.style.cursor = "progress";
+      this.http.get(this.baseUrl + 'api/Projects/Evidence/' + this.project?.caseInstanceId, { headers: Token.getHeader().headers, responseType: 'text' }).subscribe(result => {
+        var tmp = document.createElement("a");
+        tmp.href = "data:image/png;base64," + result;
+        tmp.download = this.project?.make + " " + this.project?.model + " " + this.project?.year + ".pdf";
+        tmp.click();
+      })
+    }
+    finally {
+      document.body.style.cursor = "auto";
+    }
   }
 
   format(date: string) {

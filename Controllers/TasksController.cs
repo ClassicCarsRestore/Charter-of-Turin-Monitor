@@ -404,19 +404,18 @@ namespace tasklist.Controllers
 					var pins = new List<string>();
 
 					if ((task.Media.Any() || task.ExtraMedia.Any()) && sections != null) {
-						// create a new board section
-						var name = Regex.Replace(taskToApprove.Name.Trim(), @" +", " ").Replace("/", "").Replace(":", "");
-						var n = 1;
-						// get a unique name
-						while (sections.Any(section => section.Name == name))
-							name = n++ + "_" + Regex.Replace(taskToApprove.Name.Trim(), @" +", " ").Replace("/", "").Replace(":", "");
-
-						var result = await _pinterestService.CreateBoardSection(currentProject.PinterestBoardId, name);
+						HttpResponseMessage result;
+						var n = 0;
+						do
+						{
+							if (n > sections.Count)
+								return BadRequest();
+							result = await _pinterestService.CreateBoardSection(currentProject.PinterestBoardId, (n == 0 ? "" : n + "_") + taskToApprove.Name);
+							n++;
+						}
+						while (!result.IsSuccessStatusCode);
 
 						var boardSection = await result.Content.ReadAsAsync<PinterestBoardSection>();
-						//sections = await _pinterestService.GetBoardSections(currentProject.PinterestBoardId);
-						//var boardSection = sections.Find(s => s.Name == name);
-
 
 
 						boardSectionId = boardSection.Id;
@@ -458,17 +457,29 @@ namespace tasklist.Controllers
 			var task = _taskService.GetByActivityId(processInstanceId, taskId);
 			var camundaTask = await _camundaService.GetTask(processInstanceId, taskId);
 			var project = _projectService.GetByProcessInstanceId(processInstanceId);
+			var sections = await _pinterestService.GetBoardSections(project.PinterestBoardId);
 
-			if (task.BoardSectionId == null && (updates.Media.Length > 0 || updates.ExtraMedia.Length > 0))
+			if ((task.BoardSectionId == null || !sections.Exists(sec => sec.Id == task.BoardSectionId)) && (updates.Media.Length > 0 || updates.ExtraMedia.Length > 0))
 			{
-				var sections = await _pinterestService.GetBoardSections(project.PinterestBoardId);
-				var name = Regex.Replace(camundaTask.Name.Trim(), @" +", " ").Replace("/", "").Replace(":", "");
-				var n = 1;
+				//var name = Regex.Replace(camundaTask.Name.Trim(), @" +", " ").Replace("/", "").Replace(":", "");
+				//var n = 0;
 				// get a unique name
-				while (sections.Any(section => section.Name == name))
-					name =  n++ + "_" + Regex.Replace(camundaTask.Name.Trim(), @" +", " ").Replace("/", "").Replace(":", "");
+				//while (sections.Any(section => section.Name == name))
+				//name =  n++ + "_" + Regex.Replace(camundaTask.Name.Trim(), @" +", " ").Replace("/", "").Replace(":", "");
 
-				var result = await _pinterestService.CreateBoardSection(project.PinterestBoardId, name);
+				HttpResponseMessage result;
+				var n = 0;
+				do
+				{
+					if (n > sections.Count)
+						return BadRequest();
+					result = await _pinterestService.CreateBoardSection(project.PinterestBoardId, (n == 0 ? "" : n + "_") + camundaTask.Name);
+					n++;
+				}
+				while (!result.IsSuccessStatusCode);
+
+				//Console.WriteLine(name);
+				//Console.WriteLine(await result.Content.ReadAsStringAsync());
 
 				var boardSection = await result.Content.ReadAsAsync<PinterestBoardSection>();
 				//sections = await _pinterestService.GetBoardSections(project.PinterestBoardId);

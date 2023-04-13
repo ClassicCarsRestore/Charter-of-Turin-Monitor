@@ -99,25 +99,31 @@ export class ProjectDetailsComponent implements OnInit {
   }
 
   async submitTasks() {
-    if (await this.diagramComponent.submitTasks(this.project ? this.project?.id : "")) {
-      await this.http.get<PathNode>(this.baseUrl + 'api/Tasks/' + this.project?.caseInstanceId + '/Path', Token.getHeader()).toPromise().then(result => {
-        this.root = result;
-        let node = this.root;
-        while (node.children.length > 0)
-          node = node.children[node.children.length - 1];
-        this.selectedNode = node.self.instanceId;
-      }).catch(async error => {
-        await this.http.get<Project>(this.baseUrl + 'api/Projects/' + this.project?.id + '/DTO', Token.getHeader()).toPromise().then(result => {
-          this.project = result;
-          if (!this.project.isComplete)
-            throw new Error(); 
-          this.getRootDiagram();
-        }).catch(error => {
-          HandleError.handleError(error, this.router, this.authService)
-          alert("This project couldn't be loaded.");
-          this.router.navigate(['/projects']);
+    try {
+      document.body.style.cursor = "progress";
+      if (await this.diagramComponent.submitTasks(this.project ? this.project?.id : "")) {
+        await this.http.get<PathNode>(this.baseUrl + 'api/Tasks/' + this.project?.caseInstanceId + '/Path', Token.getHeader()).toPromise().then(result => {
+          this.root = result;
+          let node = this.root;
+          while (node.children.length > 0)
+            node = node.children[node.children.length - 1];
+          this.selectedNode = node.self.instanceId;
+        }).catch(async error => {
+          await this.http.get<Project>(this.baseUrl + 'api/Projects/' + this.project?.id + '/DTO', Token.getHeader()).toPromise().then(result => {
+            this.project = result;
+            if (!this.project.isComplete)
+              throw new Error(); 
+            this.getRootDiagram();
+          }).catch(error => {
+            HandleError.handleError(error, this.router, this.authService)
+            alert("This project couldn't be loaded.");
+            this.router.navigate(['/projects']);
+          });
         });
-      });
+      }
+    }
+    finally {
+      document.body.style.cursor = "auto";
     }
   }
 
@@ -140,12 +146,18 @@ export class ProjectDetailsComponent implements OnInit {
   }
 
   downloadEvidence() {
-    this.http.get(this.baseUrl + 'api/Projects/Evidence/' + this.project?.caseInstanceId, { headers: Token.getHeader().headers, responseType: 'text' }).subscribe(result => {
-      var tmp = document.createElement("a");
-      tmp.href = "data:image/png;base64," + result;
-      tmp.download = this.project?.make + " " + this.project?.model + " " + this.project?.year + ".pdf";
-      tmp.click();
-    })
+    try {
+      document.body.style.cursor = "progress";
+      this.http.get(this.baseUrl + 'api/Projects/Evidence/' + this.project?.caseInstanceId, { headers: Token.getHeader().headers, responseType: 'text' }).subscribe(result => {
+        var tmp = document.createElement("a");
+        tmp.href = "data:image/png;base64," + result;
+        tmp.download = this.project?.make + " " + this.project?.model + " " + this.project?.year + ".pdf";
+        tmp.click();
+      })
+    }
+    finally {
+      document.body.style.cursor = "auto";
+    }
   }
 
   deleteProject() {

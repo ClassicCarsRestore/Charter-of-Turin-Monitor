@@ -1,6 +1,8 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using System;
 using System.Net;
 using System.Net.Mail;
+using System.Text;
 
 namespace tasklist
 {
@@ -59,6 +61,17 @@ namespace tasklist
                 randomstring += str[x];
             }
             return randomstring;
+        }
+
+        public static string EncryptPassword(string password)
+        {
+            string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+                password: password!,
+                salt: Encoding.ASCII.GetBytes(Settings.Salt),
+                prf: KeyDerivationPrf.HMACSHA256,
+                iterationCount: 100000,
+                numBytesRequested: 256 / 8));
+            return hashed;
         }
     }
 }

@@ -24,6 +24,7 @@ namespace tasklist.Controllers
         [HttpPost("Login", Name = "Login")]
         public ActionResult<LoginCredentialsResponse> Login(LoginCredentialsDTO creds)
         {
+            creds.Password = UtilManager.EncryptPassword(creds.Password);
             string role = _credentialsService.Login(creds);
 
             if (role == null)
@@ -78,7 +79,7 @@ namespace tasklist.Controllers
             }
             var password = UtilManager.RandString(10);
 
-            if (_credentialsService.Create(new LoginCredentials(trimmedEmail, password, account.Role, account.Name))) {
+            if (_credentialsService.Create(new LoginCredentials(trimmedEmail, UtilManager.EncryptPassword(password), account.Role, account.Name))) {
                 var messageSubject = "Charter of Turin Monitor Credentials";
                 var messageBody = $"Your credentials for the Charter of Turin Monitor platform are:\nUsername: {trimmedEmail}\nPassword: {password}\n\n" +
                     $"You can access it with the following link: http://194.210.120.34:5000/";
@@ -99,13 +100,13 @@ namespace tasklist.Controllers
             var creds = new LoginCredentialsDTO
             {
                 Email = claims.FindFirst(c => c.Type == ClaimTypes.Email).Value,
-                Password = passwordForm.OldPassword
+                Password = UtilManager.EncryptPassword(passwordForm.OldPassword)
             };
 
             if(_credentialsService.Login(creds) == null)
                 return BadRequest();
 
-            creds.Password = passwordForm.Password;
+            creds.Password = UtilManager.EncryptPassword(passwordForm.Password);
             _credentialsService.ChangePassword(creds);
 
             return Ok();

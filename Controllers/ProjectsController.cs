@@ -412,16 +412,17 @@ namespace tasklist.Controllers
                 if(taskFound.BoardSectionId != null)
                 {
                     var pins = await _pinterestService.GetPinsFromSection(currentProject.PinterestBoardId, taskFound.BoardSectionId);
-                    foreach(var pin in pins)
-                    {
-                        var media = pin.Media;
-                        var type = "";
-                        type = media.Media_type;
-                        if (type == "image" && taskFound.Pins.Contains(pin.Id))
-                            images.Add(pin);
-                        else if(type == "video")
-                            videos.Add(pin);
-                    }
+                    if (pins != null)
+                        foreach (var pin in pins)
+                        {
+                            var media = pin.Media;
+                            var type = "";
+                            type = media.Media_type;
+                            if (type == "image" && taskFound.Pins.Contains(pin.Id))
+                                images.Add(pin);
+                            else if(type == "video")
+                                videos.Add(pin);
+                        }
                 }
 
                 if (videos.Count == 0 && images.Count == 0 && (taskFound.CommentReport == null || taskFound.CommentReport == ""))

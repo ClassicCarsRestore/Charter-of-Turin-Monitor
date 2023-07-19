@@ -329,7 +329,7 @@ namespace tasklist.Controllers
             if(mainImage != null)
                 using (WebClient webClient = new WebClient())
                 {
-                    byte[] dataArr = webClient.DownloadData(mainImage.Media.Images.Originals.Url);
+                    byte[] dataArr = webClient.DownloadData(mainImage.Media.Images["1200x"].Url);
                     //save file to local
                     System.IO.File.WriteAllBytes($"data/images/{mainImage.Id}.jpg", dataArr);
                 }
@@ -499,7 +499,7 @@ namespace tasklist.Controllers
                     foreach (var i in images) {
                         using (WebClient webClient = new WebClient())
                         {
-                            byte[] dataArr = webClient.DownloadData(i.Media.Images.Originals.Url);
+                            byte[] dataArr = webClient.DownloadData(i.Media.Images["1200x"].Url);
                             //save file to local
                             System.IO.File.WriteAllBytes($"data/images/{i.Id}.jpg", dataArr);
                         }

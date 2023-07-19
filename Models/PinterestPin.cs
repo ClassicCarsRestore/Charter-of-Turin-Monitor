@@ -1,4 +1,6 @@
-﻿namespace tasklist.Models
+﻿using System.Collections.Generic;
+
+namespace tasklist.Models
 {
     public class Image
     {
@@ -12,12 +14,13 @@
     }
     public class PinMedia
     {
-        public Images Images { get; set; }
+        //public Images Images { get; set; }
         public string Cover_Image_Url { get; set; }
         public double Duration { get; set; }
         public int Height { get; set; }
         public int Width { get; set; }
         public string Media_type { get; set; }
+        public Dictionary<string, Image> Images { get; set; }
     }
     public class BoardOwner
     {

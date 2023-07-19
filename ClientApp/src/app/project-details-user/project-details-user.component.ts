@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, ViewEncapsulation } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../auth.service';
 import { HandleError } from '../common/error';
@@ -12,7 +12,8 @@ import { CompletedHistoryTasks } from '../task';
 @Component({
   selector: 'app-project-details-user',
   templateUrl: './project-details-user.component.html',
-  styleUrls: ['./project-details-user.component.css']
+  styleUrls: ['./project-details-user.component.css'],
+  encapsulation: ViewEncapsulation.None
 })
 export class ProjectDetailsUserComponent implements OnInit {
 
@@ -85,15 +86,32 @@ export class ProjectDetailsUserComponent implements OnInit {
 
   downloadEvidence() {
     try {
+      // Create and display the spinner element
+      alert("This operation may take a while. Please wait while the PDF is being generated.");
+  
+      var overlay = document.createElement("div");
+      overlay.className = "overlay";
+      document.body.appendChild(overlay);
+  
+      var spinner = document.createElement("div");
+      spinner.className = "spinner";
+      document.body.appendChild(spinner);
+  
+      // Show the overlay
+      overlay.style.display = "block";
+  
       document.body.style.cursor = "progress";
       this.http.get(this.baseUrl + 'api/Projects/Evidence/' + this.project?.caseInstanceId, { headers: Token.getHeader().headers, responseType: 'text' }).subscribe(result => {
         var tmp = document.createElement("a");
         tmp.href = "data:image/png;base64," + result;
         tmp.download = this.project?.make + " " + this.project?.model + " " + this.project?.year + ".pdf";
         tmp.click();
-      })
-    }
-    finally {
+  
+        // Remove the spinner and overlay once the download is complete
+        document.body.removeChild(spinner);
+        document.body.removeChild(overlay);
+      });
+    } finally {
       document.body.style.cursor = "auto";
     }
   }

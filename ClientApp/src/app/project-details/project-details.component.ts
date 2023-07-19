@@ -144,18 +144,35 @@ export class ProjectDetailsComponent implements OnInit {
         this.selectedNode = result;
     }, error => HandleError.handleError(error, this.router, this.authService));
   }
-
+  
   downloadEvidence() {
     try {
+      // Create and display the spinner element
+      alert("This operation may take a while. Please wait while the PDF is being generated.");
+  
+      var overlay = document.createElement("div");
+      overlay.className = "overlay";
+      document.body.appendChild(overlay);
+  
+      var spinner = document.createElement("div");
+      spinner.className = "spinner";
+      document.body.appendChild(spinner);
+  
+      // Show the overlay
+      overlay.style.display = "block";
+  
       document.body.style.cursor = "progress";
       this.http.get(this.baseUrl + 'api/Projects/Evidence/' + this.project?.caseInstanceId, { headers: Token.getHeader().headers, responseType: 'text' }).subscribe(result => {
         var tmp = document.createElement("a");
         tmp.href = "data:image/png;base64," + result;
         tmp.download = this.project?.make + " " + this.project?.model + " " + this.project?.year + ".pdf";
         tmp.click();
-      })
-    }
-    finally {
+  
+        // Remove the spinner and overlay once the download is complete
+        document.body.removeChild(spinner);
+        document.body.removeChild(overlay);
+      });
+    } finally {
       document.body.style.cursor = "auto";
     }
   }

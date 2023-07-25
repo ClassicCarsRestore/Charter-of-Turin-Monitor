@@ -1,41 +1,12 @@
-\documentclass[11pt]{article}
+\documentclass[12pt]{article}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %\pdfminorversion=4
 % NOTE: To produce blinded version, replace "0" with "1" below.
-\newcommand{\blind}{0}
+%\newcommand{\blind}{0}
 
 %%%%%%% IISE Transactions margin specifications %%%%%%%%%%%%%%%%%%%
-% DON'T change margins - should be 1 inch all around.
-\setlength{\parindent}{0in}
-\addtolength{\oddsidemargin}{-.5in}%
-\addtolength{\evensidemargin}{-.5in}%
-\addtolength{\textwidth}{1in}%
-\addtolength{\textheight}{1.3in}%
-\addtolength{\topmargin}{-.8in}%
-\makeatletter
-\renewcommand\section{\@startsection {section}{1}{\z@}%
-                                   {-3.5ex \@plus -1ex \@minus -.2ex}%
-                                   {6ex \@plus.2ex}%
-                                   {\normalfont\fontfamily{phv}\fontsize{16}{19}\bfseries}}
-\renewcommand\subsection{\@startsection{subsection}{2}{\z@}%
-                                     {-3.25ex\@plus -1ex \@minus -.2ex}%
-                                     {3ex \@plus .2ex}%
-                                     {\normalfont\fontfamily{phv}\fontsize{14}{17}\bfseries}}
-\renewcommand\subsubsection{\@startsection{subsubsection}{3}{\z@}%
-                                    {-3.25ex\@plus -1ex \@minus -.2ex}%
-                                     {1.5ex \@plus .2ex}%
-                                     {\normalfont\normalsize\fontfamily{phv}\fontsize{14}{17}\selectfont}}
-                                         
-\def\@seccntformat#1{\@ifundefined{#1@cntformat}%
-   {\csname the#1\endcsname\quad}  % default
-   {\csname #1@cntformat\endcsname}% enable individual control
-}
-\let\oldappendix\appendix %% save current definition of \appendix
-\renewcommand\appendix{%
-    \oldappendix
-    \newcommand{\section@cntformat}{Annex~\thesection\quad}
-}
+
 
 \newcommand{\chartercomment}[1]{\begin{tcolorbox}[colback=yellow!10!white,
                     colframe=white!20!black,
@@ -67,18 +38,24 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%% IISE Transactions package list %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\usepackage[toc,page]{appendix}
+\usepackage[a4paper, margin=0.8in]{geometry}
 \usepackage[toc,page]{appendix}
 \usepackage{float}
 \usepackage{setspace}
-\usepackage{hyperref}
+\usepackage{parskip}
+\usepackage[bookmarks=false]{hyperref}
 \usepackage{multicol}
 \usepackage{amsmath}
 \usepackage{graphicx}
 \usepackage{enumerate}
 \usepackage[many]{tcolorbox}
 \usepackage{xcolor}
-\usepackage{natbib} %comment out if you do not have the package
-\usepackage{url} % not crucial - just used below for the URL
+\usepackage{url}
+\usepackage{caption}
+\usepackage{pdflscape}
+\usepackage[contents={}]{background}
+\usepackage{tikz}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%% Author package list and commands %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -87,15 +64,16 @@
 %	\usepackage{lineno}
 %	\newcommand{\mb}{\mathbf}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+\hypersetup{colorlinks, linkcolor=blue, citecolor=blue, urlcolor=blue}
 \graphicspath{{./images/}}
 \addtocontents{toc}{\protect\setcounter{tocdepth}{1}}
 	
 \begin{document}
 \include{document}
-
+%\def\testee{restoration_repair_paint_complete}
+\newpage
 \setlength{\parindent}{0.25in}
-\appendix
+%\appendix
 
 \section{Charter of Turin}
 \label{sec:charter_of_turin}
@@ -219,4 +197,42 @@ The system uses the following letters for permanent marking:
 \end{table}
 
 We recommend the indication of the year of restoration/manufacture of the replacement part with the two-letter code.
+
+
+\newpage
+  
+\backgroundsetup{
+  scale=1,
+  angle=0,
+  opacity=1,
+  contents={\includegraphics[width=\paperwidth,height=\paperheight]{logos/GlasuritGuaranteeBackground(rotated).png}}
+}
+
+\begin{landscape}
+
+    \thispagestyle{empty}
+
+    \begin{tikzpicture}[opacity=0, overlay]
+        \node[fill=white, text=white, text opacity=1, inner sep=5pt, text width=0.8\paperwidth, align=center] at (6in, -4.5in) 
+        {
+            {\Huge Rolls Royce Corniche Silver Shadow (1976)}\\
+            {\huge – DH 858 VR -}
+        };
+    \end{tikzpicture}
+
+    \begin{tikzpicture}[opacity=0, overlay]
+      \node[fill=white, text=white, text opacity=1, inner sep=5pt, text width=0.4\paperwidth, align=left] at (2, -6in) 
+      {
+            \textbf{COLOR REFERENCE}\\
+            Record number: DH 858 VR\\
+            %Record number: $\testee$\\
+            Designation: WN HYUNDAI\\
+            Technique: GLOSS\\
+            Year: 1976
+      };
+    \end{tikzpicture}
+
+\end{landscape}
+
+
 \end{document}

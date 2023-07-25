@@ -80,9 +80,13 @@ namespace tasklist.Controllers
             var password = UtilManager.RandString(10);
 
             if (_credentialsService.Create(new LoginCredentials(trimmedEmail, UtilManager.EncryptPassword(password), account.Role, account.Name))) {
-                var messageSubject = "Charter of Turin Monitor Credentials";
-                var messageBody = $"Your credentials for the Charter of Turin Monitor platform are:\nUsername: {trimmedEmail}\nPassword: {password}\n\n" +
-                    $"You can access it with the following link: http://194.210.120.34:5000/";
+                var messageSubject = "Charter of Turin Monitor Credentials / Moniteur de la Charte de Turin Accréditation";
+                var messageBody = $"[EN]\nYour credentials for the Charter of Turin Monitor platform are:\nUsername: {trimmedEmail}\nPassword: {password}\n\n" +
+                    $"You can access it with the following link: http://194.210.120.34:5000/ \n\n" +
+                    $"----------------------------------------------------------------------------\n" +
+                    $"[FR]\nVotre accréditation pour la plateforme du Moniteur de la Charte de Turin est la suivante: \nNom d'utilisateur: {trimmedEmail}\n Mot de passe: {password}\n\n"+
+                    $"Vous pouvez y acceder avec le lien suivant: http://194.210.120.34:5000/";
+
 
                 if (UtilManager.SendEmail(trimmedEmail, messageSubject, messageBody))
                     return Ok();

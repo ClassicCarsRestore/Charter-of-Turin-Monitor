@@ -357,6 +357,10 @@ namespace tasklist.Controllers
                 endDate = currentProject.EndDate.ToShortDateString();
             contents.AppendLine(@"\def\carenddate{" + endDate + "}");
             contents.AppendLine(@"\def\carpinterestaccess{" + currentProject.PinterestBoardAccessUrl + "}");
+            //NOVO
+            Console.WriteLine("TESTTTEEEE: " + currentProject.LastDiagramId);
+            contents.AppendLine(@"\def\testee{" + currentProject.LastDiagramId + "}");
+            //contents.AppendLine(@"\input{glasurit}");
             contents.AppendLine(@"\input{intro}");
             contents.AppendLine(@"\newpage");
             contents.AppendLine(@"\section{Record of evidence of the intervention}");
@@ -503,7 +507,17 @@ namespace tasklist.Controllers
                             //save file to local
                             System.IO.File.WriteAllBytes($"data/images/{i.Id}.jpg", dataArr);
                         }
+                        /*tempContents.AppendLine(@"\href{https://www.pinterest.pt/pin/" + i.Id + @"}{\includegraphics[width=\linewidth]{" + i.Id + "}}");
+                        tempContents.AppendLine(@"\begin{minipage}{\linewidth}");
+                        tempContents.AppendLine(@"\captionof{figure}{"+ i.Note + "}");
+                        tempContents.AppendLine(@"\end{minipage}");*/
+                        tempContents.AppendLine(@"\begin{figure}[H]");
+                        tempContents.AppendLine(@"\centering");
                         tempContents.AppendLine(@"\href{https://www.pinterest.pt/pin/" + i.Id + @"}{\includegraphics[width=\linewidth]{" + i.Id + "}}");
+                        tempContents.AppendLine(@"\caption{"+ i.Note + "}");
+                        tempContents.AppendLine(@"\vspace{10pt}");
+                        tempContents.AppendLine(@"\end{figure}");
+
                     }
                     tempContents.AppendLine(@"\end{multicols}");
                 }
@@ -511,7 +525,7 @@ namespace tasklist.Controllers
             }
             if (changes)
                 contents.Append(tempContents);
-
+            
             string path = "data/document.tex";
             try
             {
@@ -547,7 +561,7 @@ namespace tasklist.Controllers
             string[] files = Directory.GetFiles("data/images");
             foreach (string file in files)
                 System.IO.File.Delete(file);
-
+            
             string base64 = "";
             if (System.IO.File.Exists($"data/template.pdf"))
             {
@@ -559,7 +573,7 @@ namespace tasklist.Controllers
             foreach (string file in files)
                 if (!file.Contains("template.tex") && !file.Contains("intro.tex") && !file.Contains("pdflatex.sh"))
                     System.IO.File.Delete(file);
-
+            
             return base64;
         }
 

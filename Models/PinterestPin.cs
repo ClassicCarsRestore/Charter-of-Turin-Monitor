@@ -40,5 +40,6 @@ namespace tasklist.Models
         public BoardOwner Board_Owner { get; set; }
         public PinMedia Media { get; set; }
         public string Parent_Pin_Id { get; set; }
+        public string Note {get; set; }
     }
 }

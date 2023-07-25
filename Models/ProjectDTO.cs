@@ -23,6 +23,11 @@ namespace tasklist.Models
         public string Photo { get; set; }
         public string PinterestBoardUrl { get; set; }
         public string PinterestBoardAccessUrl { get; set; }
+        public string PaintRecordNumber { get; set; }
+        public string PaintDesignation { get; set; }
+        public string PaintTechnique { get; set; }
+        public string PaintOriginalYear { get; set; }
+        public string PaintDate { get; set; }
 
         public ProjectDTO(Project project, List<CamundaTask> nextTasks)
         {
@@ -47,6 +52,11 @@ namespace tasklist.Models
             Photo = "";
             PinterestBoardUrl = project.PinterestBoardUrl;
             PinterestBoardAccessUrl = project.PinterestBoardAccessUrl;
+            PaintRecordNumber = project.PaintRecordNumber;
+            PaintDesignation = project.PaintDesignation;
+            PaintTechnique = project.PaintTechnique;
+            PaintOriginalYear = project.PaintOriginalYear;
+            PaintDate = project.PaintDate;
         }
         [JsonConstructor]
         public ProjectDTO() { }

@@ -66,6 +66,36 @@
     </div>
 
     <div class="form-group">
+      <label for="paintRecordNumber">Paint Record Number</label>
+      <input type="text" class="form-control" id="paintRecordNumber" value="{{ project?.paintRecordNumber }}" required>
+      <small id="paintRecordNumberEmpty" class="form-text" style="color:red"></small>
+    </div>
+
+    <div class="form-group">
+      <label for="paintDesignation">Paint Designation</label>
+      <input type="text" class="form-control" id="paintDesignation" value="{{ project?.paintDesignation }}" required>
+      <small id="paintDesignationEmpty" class="form-text" style="color:red"></small>
+    </div>
+
+    <div class="form-group">
+      <label for="paintTechnique">Paint Technique</label>
+      <input type="text" class="form-control" id="paintTechnique" value="{{ project?.paintTechnique }}" required>
+      <small id="paintTechniqueEmpty" class="form-text" style="color:red"></small>
+    </div>
+
+    <div class="form-group">
+      <label for="paintOriginalYear">Original Year of the Paint</label>
+      <input type="text" class="form-control" id="paintOriginalYear" value="{{ project?.paintOriginalYear }}" required>
+      <small id="paintOriginalYearEmpty" class="form-text" style="color:red"></small>
+    </div>
+
+    <div class="form-group">
+      <label for="paintDate">Paint Date</label>
+      <input type="text" class="form-control" id="paintDate" value="{{ project?.paintDate }}" required>
+      <small id="paintDateEmpty" class="form-text" style="color:red"></small>
+    </div>
+
+    <div class="form-group">
       <label for="photo">Car Photo</label> <br />
       <input #imageInput type="file" id="photo" accept=".jpeg, .jpg, .png" (change)="processFile(imageInput.files)">
       <small id="photoEmpty" class="form-text" style="color:red"></small>

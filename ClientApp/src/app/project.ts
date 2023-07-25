@@ -16,7 +16,12 @@ export class Project {
     public nextTaskName: string[],
     public photo: string,
     public pinterestBoardUrl: string,
-    public pinterestBoardAccessUrl: string
+    public pinterestBoardAccessUrl: string,
+    public paintRecordNumber: string,
+    public paintDesignation: string,
+    public paintTechnique: string,
+    public paintOriginalYear: string,
+    public paintDate: string
   ) { }
 }
 

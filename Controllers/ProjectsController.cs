@@ -268,7 +268,7 @@ namespace tasklist.Controllers
 
             string boardUrl = Settings.Pinterest_Photos_URL + Settings.Pinterest_Account + "/" + Regex.Replace(board.Name.Trim().Replace("/", "").Replace(" ", "-"), @"-+", "-").ToLower();
 
-            Project project = new Project(projectForm.Make, projectForm.Model, projectForm.Year, sanitizedLicencePlate, projectForm.Country, projectForm.ChassisNo, projectForm.EngineNo, projectForm.OwnerEmail, projectForm.StartDate, generatedId, photoId, board.Id, boardUrl, null);
+            Project project = new Project(projectForm.Make, projectForm.Model, projectForm.Year, sanitizedLicencePlate, projectForm.Country, projectForm.ChassisNo, projectForm.EngineNo, projectForm.OwnerEmail, projectForm.StartDate, generatedId, photoId, board.Id, boardUrl, null, "", "", "", "", "");
 
             _projectService.Create(project);
             // start the process in Camunda with the generated ID
@@ -357,10 +357,11 @@ namespace tasklist.Controllers
                 endDate = currentProject.EndDate.ToShortDateString();
             contents.AppendLine(@"\def\carenddate{" + endDate + "}");
             contents.AppendLine(@"\def\carpinterestaccess{" + currentProject.PinterestBoardAccessUrl + "}");
-            //NOVO
-            Console.WriteLine("TESTTTEEEE: " + currentProject.LastDiagramId);
-            contents.AppendLine(@"\def\testee{" + currentProject.LastDiagramId + "}");
-            //contents.AppendLine(@"\input{glasurit}");
+            contents.AppendLine(@"\def\paintRecordNumber{" + currentProject.PaintRecordNumber  + "}");
+            contents.AppendLine(@"\def\paintDesignation{" + currentProject.PaintDesignation  + "}");
+            contents.AppendLine(@"\def\paintTechnique{" + currentProject.PaintTechnique  + "}");
+            contents.AppendLine(@"\def\paintOriginalYear{" + currentProject.PaintOriginalYear  + "}");
+            contents.AppendLine(@"\def\paintDate{" + currentProject.PaintDate + "}");
             contents.AppendLine(@"\input{intro}");
             contents.AppendLine(@"\newpage");
             contents.AppendLine(@"\section{Record of evidence of the intervention}");

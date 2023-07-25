@@ -150,12 +150,56 @@ export class EditProjectComponent implements OnInit {
     } else
       document.getElementById("pinterestUrlEmpty")!.innerHTML = "";
 
+    var paintRecordNumber = (<HTMLInputElement>document.getElementById("paintRecordNumber")).value;
+
+    // disallow submitting without writting the paintRecordNumber
+    if (paintRecordNumber.trim() == "") {
+      hasErrors = true;
+      document.getElementById("paintRecordNumberEmpty")!.innerHTML = "Paint record number can't be empty";
+    } else
+      document.getElementById("paintRecordNumberEmpty")!.innerHTML = "";
+
+    var paintDesignation = (<HTMLInputElement>document.getElementById("paintDesignation")).value;
+
+    // disallow submitting without writting the paintDesignation
+    if (paintDesignation.trim() == "") {
+      hasErrors = true;
+      document.getElementById("paintDesignationEmpty")!.innerHTML = "Paint designation can't be empty";
+    } else
+      document.getElementById("paintDesignationEmpty")!.innerHTML = "";
+
+    var paintTechnique = (<HTMLInputElement>document.getElementById("paintTechnique")).value;
+
+    // disallow submitting without writting the paintTechnique
+    if (paintTechnique.trim() == "") {
+      hasErrors = true;
+      document.getElementById("paintTechniqueEmpty")!.innerHTML = "Paint technique can't be empty";
+    } else
+      document.getElementById("paintTechniqueEmpty")!.innerHTML = ""
+
+    var paintOriginalYear = (<HTMLInputElement>document.getElementById("paintOriginalYear")).value;
+
+    // disallow submitting without writting the paintOriginalYear
+    if (paintOriginalYear.trim() == "") {
+      hasErrors = true;
+      document.getElementById("paintOriginalYearEmpty")!.innerHTML = "The original year of the paint can't be empty";
+    } else
+      document.getElementById("paintOriginalYearEmpty")!.innerHTML = ""
+
+    var paintDate = (<HTMLInputElement>document.getElementById("paintDate")).value;
+
+    // disallow submitting without writting the paintDate
+    if (paintDate.trim() == "") {
+      hasErrors = true;
+      document.getElementById("paintDateEmpty")!.innerHTML = "The date of the paint can't be empty";
+    } else
+      document.getElementById("paintDateEmpty")!.innerHTML = ""
 
     if (!hasErrors && this.project) {
       let photo = "";
       if (this.photo)
         photo = this.photo[0];
-      let proj = new Project(this.project?.id, make, model, year, licencePlate, country, chassisNo, engineNo, ownerEmail, this.project.startDate, this.project.endDate, this.project.isComplete, this.project.caseInstanceId, this.project.nextTaskName, photo, this.project.pinterestBoardUrl, pinterestUrl);
+      let proj = new Project(this.project?.id, make, model, year, licencePlate, country, chassisNo, engineNo, ownerEmail, this.project.startDate, this.project.endDate, this.project.isComplete, this.project.caseInstanceId, this.project.nextTaskName, photo, this.project.pinterestBoardUrl, pinterestUrl, paintRecordNumber, paintDesignation, paintTechnique, paintOriginalYear, paintDate);
       this.client.put(this.baseUrl + 'api/Projects/' + proj?.id, proj, Token.getHeader()).subscribe(result => {
         this.router.navigate(['/projects/details/' + proj?.id]);
       }, error => HandleError.handleError(error, this.router, this.authService));

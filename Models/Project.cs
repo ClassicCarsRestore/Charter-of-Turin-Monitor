@@ -68,7 +68,22 @@ namespace tasklist.Models
         [BsonElement("pinterestBoardAccessUrl")]
         public string PinterestBoardAccessUrl { get; set; }
 
-        public Project(string make, string model, int year, string licencePlate, string country, string chassisNo, string engineNo, string ownerEmail, DateTime startDate, string caseInstanceId, string photoId, string pinterestBoardId, string pinterestBoardUrl, string pinterestBoardAccessUrl)
+        [BsonElement("paintRecordNumber")]
+        public string PaintRecordNumber { get; set; }
+
+        [BsonElement("paintDesignation")]
+        public string PaintDesignation { get; set; }
+
+        [BsonElement("paintTechnique")]
+        public string PaintTechnique { get; set; }
+
+        [BsonElement("paintOriginalYear")]
+        public string PaintOriginalYear { get; set; }
+
+        [BsonElement("paintDate")]
+        public string PaintDate { get; set; }
+
+        public Project(string make, string model, int year, string licencePlate, string country, string chassisNo, string engineNo, string ownerEmail, DateTime startDate, string caseInstanceId, string photoId, string pinterestBoardId, string pinterestBoardUrl, string pinterestBoardAccessUrl, string paintRecordNumber, string paintDesignation, string paintTechnique, string paintOriginalYear, string paintDate)
         {
             Make = make;
             Model = model;
@@ -88,6 +103,11 @@ namespace tasklist.Models
             PinterestBoardId = pinterestBoardId;
             PinterestBoardUrl = pinterestBoardUrl;
             PinterestBoardAccessUrl = pinterestBoardAccessUrl;
+            PaintRecordNumber = paintRecordNumber;
+            PaintDesignation = paintDesignation;
+            PaintTechnique = paintTechnique;
+            PaintOriginalYear = paintOriginalYear;
+            PaintDate = paintDate;
         }
 
         public Project(Project oldProject, ProjectDTO newProject)
@@ -111,6 +131,11 @@ namespace tasklist.Models
             PinterestBoardId = oldProject.PinterestBoardId;
             PinterestBoardUrl = oldProject.PinterestBoardUrl;
             PinterestBoardAccessUrl = newProject.PinterestBoardAccessUrl;
+            PaintRecordNumber = newProject.PaintRecordNumber;
+            PaintDesignation = newProject.PaintDesignation;
+            PaintTechnique = newProject.PaintTechnique;
+            PaintOriginalYear = newProject.PaintOriginalYear;
+            PaintDate = newProject.PaintDate;
         }
     }
 }

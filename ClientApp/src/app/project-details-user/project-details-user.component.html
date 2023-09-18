@@ -6,6 +6,7 @@
     <div class="col">
       <h1 id="projectName">{{ this.project?.make + " " + this.project?.model + " " + this.project?.year }}</h1>
     </div>
+
     <div class="col" style="margin: auto; padding-right: 30px;" *ngIf="project?.isComplete">
       <!--<a id="download-history" class="btn btn-secondary" (click)="downloadProjectHistory()" style="float:right">Download</a>-->
       <a id="download-evidence" class="btn btn-secondary" (click)="downloadEvidence()" style="float:right">Download Evidence PDF</a>
@@ -32,6 +33,9 @@
     <div class="row">
       <div class="col">
         <p><b>Pinterest Access URL: </b><a href="{{this.project?.pinterestBoardUrl}}" target="_blank">{{this.project?.pinterestBoardAccessUrl}}</a></p>
+      </div>
+      <div class="col">
+        <button class="btn btn-primary" (click)="vehicleCard(this.project.chassisNo)" style="float:right">Vehicle Card</button>
       </div>
     </div>
   </div>

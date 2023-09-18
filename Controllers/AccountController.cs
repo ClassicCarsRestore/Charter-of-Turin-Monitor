@@ -5,6 +5,9 @@ using tasklist.Models;
 using tasklist.Services;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System;
+using System.Net.Http;
+using Newtonsoft.Json;
 
 namespace tasklist.Controllers
 {
@@ -55,7 +58,7 @@ namespace tasklist.Controllers
 
         [HttpPost("Create", Name = "Create")]
         [Authorize(Roles = "admin")]
-        public ActionResult Create(Account account)
+        public async Task<ActionResult> Create(Account account)
         {
             var trimmedEmail = account.Email.Trim();
 
@@ -88,8 +91,32 @@ namespace tasklist.Controllers
                     $"Vous pouvez y acceder avec le lien suivant: http://194.210.120.34:5000/";
 
 
-                if (UtilManager.SendEmail(trimmedEmail, messageSubject, messageBody))
+                if (UtilManager.SendEmail(trimmedEmail, messageSubject, messageBody)) {
+                    //Blockchain
+                    using (HttpClient client = new HttpClient())
+                    {
+                        string[] accountName = account.Name.Split(' ');
+                        var formData = new
+                        {
+                            email = trimmedEmail,
+                            password = password,
+                            orgname = "Org1",
+                            firstname = accountName[0],
+                            surname = accountName[1],
+                            country = "Portugal"
+                        };
+                        string jsonContent = JsonConvert.SerializeObject(formData);
+                        StringContent content = new StringContent(jsonContent, System.Text.Encoding.UTF8, "application/json");
+                        try {
+                            HttpResponseMessage response = await client.PostAsync("http://194.210.120.34:8393/api/Users", content);
+                        }
+                        catch (Exception ex){
+                            Console.WriteLine("Exception: " + ex.Message);
+                        }
+                    }
+                    //Blockchain-End
                     return Ok();
+                }
                 return BadRequest();
             }
             return Conflict();

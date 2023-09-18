@@ -16,6 +16,8 @@ namespace tasklist.Models
 
         public string BoardSectionUrl { get; set; }
 
+        public string BlockChainId { get; set; }
+
         public TaskDTO(Task task)
         {
             Id = task.ActivityId;
@@ -25,6 +27,7 @@ namespace tasklist.Models
             CommentReport = task.CommentReport;
             CommentExtra = task.CommentExtra;
             BoardSectionUrl = task.BoardSectionUrl;
+            BlockChainId = task.BlockChainId;
         }
     }
 }

@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '../auth.service';
 import { Token } from '../common/tokens';
 import { Task, TaskUpdate } from '../task';
+import { TaskBCGet } from '../bcTask';
 
 @Component({
   selector: 'app-task-details',
@@ -157,13 +158,56 @@ export class TaskDetailsComponent implements OnInit {
   }
 
   submitUpdates() {
-    var updates = new TaskUpdate(this.startDate.toISOString(), this.completionDate.toISOString(), this.commentReport, this.commentExtra, this.media, this.extraMedia);
-    this.http.post(this.baseUrl + 'api/Tasks/' + this.selectedTask?.processInstanceId + "/" + this.selectedTask?.id + '/Update', updates, Token.getHeader()).subscribe(result => {
+    var updates = new TaskUpdate(this.startDate.toISOString(), this.completionDate.toISOString(), this.commentReport, this.commentExtra, this.media, this.extraMedia, this.selectedTask.blockChainId);
+    this.http.post(this.baseUrl + 'api/Tasks/' + this.selectedTask?.processInstanceId + "/" + this.selectedTask?.id + '/Update', updates, Token.getHeader()).subscribe(async result => {
+      //Blockchain
+      console.log("Taskkk debug");
+      console.log(this.selectedTask);
+      console.log("process instance");
+      console.log(this.selectedTask?.processInstanceId)
+      console.log("blockchain id");
+      console.log(this.selectedTask?.blockChainId);
+      const parts: string[] = this.selectedTask.blockChainId.split("_");
+      const chassisNo: string = parts[0];
+      const formData = new FormData();
+      formData.append('stepId', String(this.selectedTask.blockChainId));
+      let task;
+      await this.http.get<TaskBCGet>('http://194.210.120.34:8393/api/Restorations/Get/' + chassisNo +'/'+this.selectedTask.blockChainId, Token.getHeaderBC()).subscribe(async result2 => {
+        task = result2;
+        formData.append('newTitle', task.title);
+        formData.append('newDescription', this.commentReport);
+        for(let file of this.media) {
+          let imageFile = this.base64ToFile(file, "filename");
+          formData.append('file', imageFile);
+        }
+        await this.http.put('http://194.210.120.34:8393/api/Restorations/UpdateAndPhotos/' + chassisNo, formData, Token.getHeaderBC()).subscribe();
+      });
+      //Blockchain - End
       this.closeButton();
       alert("Task updated successfully.");
     }, (error => {
       alert("An error has occured with the task update. Please refresh the page and try again.");
       console.error(error);
     }));
+  }
+
+  private base64ToFile(base64String: string, filename:string) {
+    let arr = base64String.split(',');
+    let match = arr[0].match(/:(.*?);/);
+    
+    if (!match) {
+        throw new Error('Invalid base64 string format');
+    }
+
+    let mimeType = match[1];
+    let bstr = atob(arr[1]);
+    let n = bstr.length;
+    let u8arr = new Uint8Array(n);
+    
+    while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+    }
+    
+    return new File([u8arr], filename, { type: mimeType });
   }
 }

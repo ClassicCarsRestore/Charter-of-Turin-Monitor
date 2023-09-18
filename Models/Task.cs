@@ -38,7 +38,10 @@ namespace tasklist.Models
         [BsonElement("pins")]
         public List<string> Pins { get; set; }
 
-        public Task(string activityId, string processInstanceId, string startTime, string completionTime, string commentReport, string commentExtra, string boardSectionId, string boardSectionUrl, List<string> pins)
+        [BsonElement("blockChainId")]
+        public string BlockChainId { get; set; }
+
+        public Task(string activityId, string processInstanceId, string startTime, string completionTime, string commentReport, string commentExtra, string boardSectionId, string boardSectionUrl, List<string> pins, string blockChainId)
 		{
             ActivityId = activityId;
             ProcessInstanceId = processInstanceId;
@@ -49,6 +52,7 @@ namespace tasklist.Models
             BoardSectionId = boardSectionId;
             BoardSectionUrl = boardSectionUrl;
             Pins = pins;
+            BlockChainId = blockChainId;
 
         }
     }

@@ -223,4 +223,8 @@ export class ProjectDetailsComponent implements OnInit {
   format(date?: string) {
     return Format.formatDate(date? date : "");
   }
+
+  vehicleCard(chassisNo: string) {
+    window.open('http://194.210.120.34:4200/classics/details/' + chassisNo, '_blank');
+  }
 }

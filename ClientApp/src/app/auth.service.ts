@@ -3,8 +3,9 @@ import { Inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 import { Token } from './common/tokens';
-import { Credentials, CredentialToken } from './credentials';
+import { Credentials, CredentialToken, CredentialsBC, CredentialBCToken } from './credentials';
 import { Account } from './user';
+import { envBC } from './envBC';
 
 @Injectable()
 export class AuthService {
@@ -36,8 +37,14 @@ export class AuthService {
         localStorage.setItem('RBToken', response.token);
         this.role.next(response.role);
 
-        if (response.role == "admin")
+        if (response.role == "admin") {
           this.router.navigate(['pinterest']);
+          let userChain = new CredentialsBC(envBC.adminBCEmail, envBC.adminBCpassword, envBC.adminBCorg)
+          this.client.post<CredentialBCToken>('http://194.210.120.34:8393/api/Users/Login', userChain).subscribe(result2 => {
+            localStorage.setItem('ChainToken', result2.message.token);
+          });
+          
+        }
         else
           this.router.navigate(['']);
       }, error => {
@@ -49,6 +56,7 @@ export class AuthService {
 
   logout() {
     localStorage.removeItem('RBToken');
+    localStorage.removeItem('ChainToken');
     this.role.next("");
     this.router.navigate(['/login']);
   }

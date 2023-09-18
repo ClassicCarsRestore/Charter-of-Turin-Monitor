@@ -123,6 +123,17 @@ namespace tasklist.Services
             return null;
         }
 
+        public async Task<CamundaTask> GetTaskForBC(string processInstanceId, string activityId)
+        {
+            HttpResponseMessage response = await _client.GetAsync(BASE_URL + "history/task?processInstanceId=" + processInstanceId + "&activityId=" + activityId);
+            if (response.IsSuccessStatusCode) {
+                var t = await response.Content.ReadFromJsonAsync<List<CamundaTask>>();
+                var taskBC = t.Where(item => item.TaskDefinitionKey == activityId).LastOrDefault();
+                return taskBC;
+            }
+            return null;
+        }
+
         public async Task<CamundaHistoryTask> GetHistoryTask(string processInstanceId, string activityId)
         {
             HttpResponseMessage response = await _client.GetAsync(BASE_URL + "history/activity-instance?processInstanceId=" + processInstanceId + "&activityId=" + activityId);

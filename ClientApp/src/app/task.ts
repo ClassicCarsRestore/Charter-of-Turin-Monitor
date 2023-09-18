@@ -6,6 +6,7 @@ export interface Task {
   boardSectionUrl: string;
   commentReport: string;
   commentExtra: string;
+  blockChainId: string;
 }
 
 export class TasksToApprove {
@@ -51,14 +52,16 @@ export class TaskUpdate {
   public commentExtra: string;
   public media: string[];
   public extraMedia: string[];
+  public blockChainId: string;
 
-  constructor(startDate: string, completionDate: string, commentReport: string, commentExtra: string, media: string[], extraMedia: string[]) {
+  constructor(startDate: string, completionDate: string, commentReport: string, commentExtra: string, media: string[], extraMedia: string[], blockChainId: string) {
     this.startDate = startDate;
     this.completionDate = completionDate;
     this.commentReport = commentReport;
     this.commentExtra = commentExtra;
     this.media = media;
     this.extraMedia = extraMedia;
+    this.blockChainId = blockChainId;
   }
 }
 
@@ -81,4 +84,10 @@ export interface PathTask {
   processDefinitionId: string;
   processInstanceId: string;
   startTime: string;
+}
+
+export interface CreateTaskBCResponse {
+  success: string;
+  message: string;
+  stepId: string;
 }

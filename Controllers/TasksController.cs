@@ -434,7 +434,7 @@ namespace tasklist.Controllers
 							_pinterestService.CreatePin(media, currentProject.PinterestBoardId, boardSectionId);
 					}
 
-					_taskService.Create(new Task(task.Id, currentProcessInstanceId, task.StartTime, task.CompletionTime, task.CommentReport, task.CommentExtra, boardSectionId, sectionUrl, pins));
+					_taskService.Create(new Task(task.Id, currentProcessInstanceId, task.StartTime, task.CompletionTime, task.CommentReport, task.CommentExtra, boardSectionId, sectionUrl, pins, ""));
 
 					// delete the prediction if it was submitted
 					SensorTask prediction = predictions.Find(p => p.ActivityId != null && p.ActivityId == taskToApprove.TaskDefinitionKey);
@@ -563,6 +563,30 @@ namespace tasklist.Controllers
 			_taskService.Remove(task.Id);
 
 			return NoContent();
+		}
+
+		[DisableRequestSizeLimit]
+		[HttpGet("getBC/{processInstanceId}/{activityId}/")]
+		[Authorize(Roles = "admin, manager")]
+		public async Task<ActionResult<CamundaTaskDTO>> GetTaskBC(string processInstanceId, string activityId)
+		{
+			var camundaTask = await _camundaService.GetTaskForBC(processInstanceId, activityId);
+			if (camundaTask == null)
+				return NotFound();
+
+			return new CamundaTaskDTO(camundaTask);
+		}
+
+		[DisableRequestSizeLimit]
+		[HttpPut("{processInstanceId}/{taskId}/updateWithBcId/{taskBcId}")]
+		[Authorize(Roles = "admin, manager")]
+		public async Task<IActionResult> updateWithBcId(string processInstanceId, string taskId, string taskBcId)
+        {
+			var task = _taskService.GetByActivityId(processInstanceId, taskId);
+			task.BlockChainId = taskBcId;
+			_taskService.Update(task.Id, task);
+
+			return Ok();
 		}
 	}
 }

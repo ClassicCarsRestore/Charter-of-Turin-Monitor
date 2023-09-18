@@ -9,6 +9,10 @@ var Token = /** @class */ (function () {
         var token = localStorage.getItem('RBToken');
         return { headers: new http_1.HttpHeaders().append('Authorization', "Bearer " + (token ? token : "")) };
     };
+    Token.getHeaderBC = function () {
+        let token = localStorage.getItem('ChainToken');
+        return { headers: new HttpHeaders().append('Authorization', "Bearer " + (token ? token : "")) };
+    };
     return Token;
 }());
 exports.Token = Token;

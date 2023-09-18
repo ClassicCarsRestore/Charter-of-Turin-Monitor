@@ -6,6 +6,7 @@ import { Token } from '../common/tokens';
 import { HandleError } from '../common/error';
 import { AuthService } from '../auth.service';
 import { Account } from '../user';
+import { BcClassicForm } from '../bcTask';
 
 @Component({
   selector: 'app-project-form',
@@ -134,11 +135,22 @@ export class ProjectFormComponent implements OnInit {
       // build an object with the project name and creation datetime
       let proj = new ProjectForm(make, model, year, licencePlate, country, chassisNo, engineNo, ownerEmail, clientExpectation, this.photo![0], originalMaterials, carDocuments, currentDate.toISOString());
 
-      // 
       this.http.post<Project>(this.baseUrl + 'api/Projects', proj, Token.getHeader()).subscribe(result => {
         this.project = result;
         window.open(result.pinterestBoardUrl, "_blank");
-      }, error => HandleError.handleError(error, this.router, this.authService));
+        //Blockchain
+        this.http.get('http://194.210.120.34:8393/api/Classics/Get/' + chassisNo, Token.getHeaderBC()).subscribe(result2 => {
+          console.log(result2);
+        }, error => {
+          //If the classic with the given chassisNo is not found, then create it
+          if (error && error.error && error.error.message === "404 - The classic "+chassisNo+" was Not Found") {
+            let classic = new BcClassicForm(make, model, year, licencePlate, country, chassisNo, engineNo, ownerEmail);
+            this.http.post('http://194.210.120.34:8393/api/Classics/Create', classic, Token.getHeaderBC()).subscribe(result3 => {
+              console.log(result3);
+            });
+          }
+        });
+      }, error => HandleError.handleError(error, this.router, this.authService)); 
     }
   }
 

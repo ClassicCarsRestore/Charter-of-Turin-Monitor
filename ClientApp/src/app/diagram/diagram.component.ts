@@ -34,7 +34,7 @@ import { InclusiveNode } from '../inclusive-node';
 import { ParallelNode } from '../parallel-node';
 import { HistoryTasks } from '../diagram';
 import { SubmittedNode } from '../submitted-node';
-import { PredictedTasks, TasksToApprove, TaskToApprove, Task } from '../task';
+import { PredictedTasks, TasksToApprove, TaskToApprove, Task, CreateTaskBCResponse } from '../task';
 import { SequenceFlowNode } from '../sequence-flow-node';
 import { GatewayNode } from '../gateway-node';
 import { ReceiveMessageNode } from '../receive-message-node';
@@ -45,6 +45,8 @@ import { HandleError } from '../common/error';
 import { Router } from '@angular/router';
 import { AuthService } from '../auth.service';
 import { DatePickerComponent } from '../date-picker/date-picker.component';
+import { Project } from '../project';
+import { BCTask } from '../bcTask';
 
 @Component({
   selector: 'app-diagram',
@@ -91,6 +93,10 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
   // the @Inject parameter
   public selectedNode: BasicNode | null;
   public selectedTask: Task | null;
+
+  public project?: Project;
+  private bcTask?: BCTask;
+
 
   constructor(private http: HttpClient, @Inject('BASE_URL') private baseUrl: string, private router: Router, private authService: AuthService) {
 
@@ -274,6 +280,13 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
    * to be approved in the Camunda Workflow Engine.
    */
   async submitTasks(projectId: string): Promise<boolean> {
+
+    await this.http.get<Project>(this.baseUrl + 'api/Projects/' + projectId + '/DTO', Token.getHeader()).toPromise().then(result => {
+      this.project = result;
+    }).catch(error => {
+      HandleError.handleError(error, this.router, this.authService)
+      alert("This project couldn't be loaded.");
+    });
     
     if (this.currentNode == null) return false;
     if (!this.currentNode.canBeValidated()) {
@@ -292,7 +305,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
     var variablesToSend: Map<string, string> = this.currentNode.getVariables();
 
     var startEventTriggers: string[] = this.currentNode.getStartEventTriggers();
-
+    let activitiesBC: string[] = new Array<string>();
+    let commentsBC: string[] = new Array<string>();
+    let idAndPhotos = new Map<string, string[]>();
     // if the list to submit is empty do nothing
     if (nodesSelected.length == 0) return false;
 
@@ -304,6 +319,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
       let task: TaskToApprove = new TaskToApprove(node.id, node.startTime!.toISOString(), node.completionTime!.toISOString(),
         node instanceof ReceiveMessageNode ? node.getMessageRefForSubmission() : "", node.commentReport, node.commentExtra, node.media, node.extraMedia);
       tasks.push(task);
+      activitiesBC.push(node.id);
+      commentsBC.push(node.commentReport);
+      idAndPhotos.set(node.id, node.media);
     });
      
     var variablesArray = Array.from(variablesToSend.entries());
@@ -325,7 +343,32 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
       alert("An error has occured with the task submission. Please refresh the page and try again.");
       console.error(error);
     });
-    
+
+    //Blockchain
+    for (let i = 0; i < activitiesBC.length; i++) {
+      const act = activitiesBC[i];
+      let map = idAndPhotos.get(act);
+      const result2 = await this.http.get<BCTask>(this.baseUrl + 'api/Tasks/getBC/' + tasksToApprove.processInstanceId + '/' + act, Token.getHeader()).toPromise();
+      this.bcTask = result2;
+      const name =  this.bcTask?.name;
+      const comment = commentsBC[i];
+      const formData = new FormData();
+      formData.append('title',  name!);
+      formData.append('description', comment);
+      if(map != null && map.length > 0) {
+        for (let file of map) {
+          let imageFile = this.base64ToFile(file, "filename");
+          formData.append('file', imageFile);
+        }
+      }
+      let responseTaskBC;
+      await this.http.post<CreateTaskBCResponse>('http://194.210.120.34:8393/api/Restorations/Create/'+this.project?.chassisNo, formData, Token.getHeaderBC()).toPromise().then(async result3 => {
+        responseTaskBC = result3;
+        await this.http.put(this.baseUrl + 'api/Tasks/'+tasksToApprove.processInstanceId+'/'+activitiesBC[i]+'/updateWithBcId/'+responseTaskBC.stepId, null, Token.getHeader()).toPromise().then(result4 => {});
+      })
+    }
+    //Blockchain-end
+
     return success;
   }
 
@@ -991,6 +1034,26 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
         console.log("Node type not found.");
         break;
     }
+  }
+
+  private base64ToFile(base64String: string, filename:string) {
+    let arr = base64String.split(',');
+    let match = arr[0].match(/:(.*?);/);
+    
+    if (!match) {
+        throw new Error('Invalid base64 string format');
+    }
+
+    let mimeType = match[1];
+    let bstr = atob(arr[1]);
+    let n = bstr.length;
+    let u8arr = new Uint8Array(n);
+    
+    while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+    }
+    
+    return new File([u8arr], filename, { type: mimeType });
   }
 
 }

@@ -5,4 +5,9 @@ export class Token {
     let token = localStorage.getItem('RBToken');
     return { headers: new HttpHeaders().append('Authorization', "Bearer " + (token ? token : "")) };
   }
+
+  static getHeaderBC() {
+    let token = localStorage.getItem('ChainToken');
+    return { headers: new HttpHeaders().append('Authorization', "Bearer " + (token ? token : "")) };
+  }
 }

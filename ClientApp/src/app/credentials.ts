@@ -11,3 +11,19 @@ export class CredentialToken {
     public token: string
   ) { }
 }
+
+export class CredentialsBC {
+  constructor(
+    public email: string,
+    public password: string,
+    public orgname: string
+  ) {}
+}
+
+export class CredentialBCToken {
+  constructor(public success: string, public message: MessageBC) {}
+}
+
+export class MessageBC {
+  constructor(public email: string, public token: string, public org: string) {}
+}

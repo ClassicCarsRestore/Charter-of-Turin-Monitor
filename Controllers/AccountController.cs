@@ -108,7 +108,7 @@ namespace tasklist.Controllers
                         string jsonContent = JsonConvert.SerializeObject(formData);
                         StringContent content = new StringContent(jsonContent, System.Text.Encoding.UTF8, "application/json");
                         try {
-                            HttpResponseMessage response = await client.PostAsync("http://194.210.120.34:8393/api/Users", content);
+                            HttpResponseMessage response = await client.PostAsync("https://gui.classicschain.com:8393/api/Users", content);
                         }
                         catch (Exception ex){
                             Console.WriteLine("Exception: " + ex.Message);

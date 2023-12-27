@@ -172,7 +172,7 @@ export class TaskDetailsComponent implements OnInit {
       const formData = new FormData();
       formData.append('stepId', String(this.selectedTask.blockChainId));
       let task;
-      await this.http.get<TaskBCGet>('http://194.210.120.34:8393/api/Restorations/Get/' + chassisNo +'/'+this.selectedTask.blockChainId, Token.getHeaderBC()).subscribe(async result2 => {
+      await this.http.get<TaskBCGet>('https://gui.classicschain.com:8393/api/Restorations/Get/' + chassisNo +'/'+this.selectedTask.blockChainId, Token.getHeaderBC()).subscribe(async result2 => {
         task = result2;
         formData.append('newTitle', task.title);
         formData.append('newDescription', this.commentReport);
@@ -180,7 +180,7 @@ export class TaskDetailsComponent implements OnInit {
           let imageFile = this.base64ToFile(file, "filename");
           formData.append('file', imageFile);
         }
-        await this.http.put('http://194.210.120.34:8393/api/Restorations/UpdateAndPhotos/' + chassisNo, formData, Token.getHeaderBC()).subscribe();
+        await this.http.put('https://gui.classicschain.com:8393/api/Restorations/UpdateAndPhotos/' + chassisNo, formData, Token.getHeaderBC()).subscribe();
       });
       //Blockchain - End
       this.closeButton();

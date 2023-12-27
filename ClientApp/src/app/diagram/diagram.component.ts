@@ -362,7 +362,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
         }
       }
       let responseTaskBC;
-      await this.http.post<CreateTaskBCResponse>('http://194.210.120.34:8393/api/Restorations/Create/'+this.project?.chassisNo, formData, Token.getHeaderBC()).toPromise().then(async result3 => {
+      await this.http.post<CreateTaskBCResponse>('https://gui.classicschain.com:8393/api/Restorations/Create/'+this.project?.chassisNo, formData, Token.getHeaderBC()).toPromise().then(async result3 => {
         responseTaskBC = result3;
         await this.http.put(this.baseUrl + 'api/Tasks/'+tasksToApprove.processInstanceId+'/'+activitiesBC[i]+'/updateWithBcId/'+responseTaskBC.stepId, null, Token.getHeader()).toPromise().then(result4 => {});
       })

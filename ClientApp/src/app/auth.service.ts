@@ -40,7 +40,7 @@ export class AuthService {
         if (response.role == "admin") {
           this.router.navigate(['pinterest']);
           let userChain = new CredentialsBC(envBC.adminBCEmail, envBC.adminBCpassword, envBC.adminBCorg)
-          this.client.post<CredentialBCToken>('http://194.210.120.34:8393/api/Users/Login', userChain).subscribe(result2 => {
+          this.client.post<CredentialBCToken>('https://gui.classicschain.com:8393/api/Users/Login', userChain).subscribe(result2 => {
             localStorage.setItem('ChainToken', result2.message.token);
           });
           

@@ -36,5 +36,6 @@ services:
       LoginCredentialsDatabaseSettings__Host: mongo
       PinterestDatabaseSettings__Host: mongo
       CameraHubDatabaseSettings__Host: mongo
+      VirtualMapLocationsDatabaseSettings__Host: mongo
     depends_on:
       - mongo

@@ -112,6 +112,12 @@ namespace tasklist
             services.AddSingleton<ICameraHubDatabaseSettings>(sp =>
                 sp.GetRequiredService<IOptions<CameraHubDatabaseSettings>>().Value);
 
+            services.Configure<VirtualMapLocationsDatabaseSettings>(
+                Configuration.GetSection(nameof(VirtualMapLocationsDatabaseSettings)));
+
+            services.AddSingleton<IVirtualMapLocationsDatabaseSettings>(sp =>
+                sp.GetRequiredService<IOptions<VirtualMapLocationsDatabaseSettings>>().Value);
+
             services.AddSingleton<ProjectService>();
 
             services.AddSingleton<TaskService>();
@@ -129,6 +135,9 @@ namespace tasklist
             services.AddSingleton<PinterestService>();
 
             services.AddSingleton<CameraHubService>();
+
+            services.AddSingleton<VirtualMapLocationService>();
+
 
             services.AddControllersWithViews();
             // In production, the Angular files will be served from this directory

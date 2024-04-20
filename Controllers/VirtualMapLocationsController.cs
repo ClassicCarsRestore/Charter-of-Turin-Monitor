@@ -72,6 +72,28 @@ namespace tasklist.Controllers
 			return NoContent();
 		}
 
+
+		[HttpPut("{id:length(24)}")]
+		[Authorize(Roles = "admin")]
+		public async Task<IActionResult> Update(string id, VirtualMapLocation updatedVirtualMapLocation)
+		{
+    		var existingVirtualMapLocation = _virtualMapLocationService.Get(id);
+
+    		if (existingVirtualMapLocation == null)
+    		{
+        		return NotFound();
+    		}
+
+    		existingVirtualMapLocation.Name = updatedVirtualMapLocation.Name;
+    		existingVirtualMapLocation.CoordinateX = updatedVirtualMapLocation.CoordinateX;
+    		existingVirtualMapLocation.CoordinateY = updatedVirtualMapLocation.CoordinateY;
+    		// Update other properties as needed
+
+    		await System.Threading.Tasks.Task.Run(() => _virtualMapLocationService.Update(id,existingVirtualMapLocation));
+
+    		return NoContent();
+		}
+
 		
 	}
 }

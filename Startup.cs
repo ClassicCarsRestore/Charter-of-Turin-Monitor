@@ -118,6 +118,13 @@ namespace tasklist
             services.AddSingleton<IVirtualMapLocationsDatabaseSettings>(sp =>
                 sp.GetRequiredService<IOptions<VirtualMapLocationsDatabaseSettings>>().Value);
 
+            services.Configure<ActivityAndLocationHistoryDatabaseSettings>(
+                Configuration.GetSection(nameof(ActivityAndLocationHistoryDatabaseSettings)));
+
+            services.AddSingleton<IActivityAndLocationHistoryDatabaseSettings>(sp =>
+                sp.GetRequiredService<IOptions<ActivityAndLocationHistoryDatabaseSettings>>().Value);
+
+
             services.AddSingleton<ProjectService>();
 
             services.AddSingleton<TaskService>();
@@ -137,6 +144,9 @@ namespace tasklist
             services.AddSingleton<CameraHubService>();
 
             services.AddSingleton<VirtualMapLocationService>();
+
+            services.AddSingleton<ActivityAndLocationHistoryService>();
+
 
 
             services.AddControllersWithViews();

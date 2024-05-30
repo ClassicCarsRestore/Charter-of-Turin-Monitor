@@ -25,9 +25,11 @@ namespace tasklist.Controllers
 		private readonly AmazonS3Service _amazonS3Service;
 		private readonly ActivityMapService _activityMapService;
 		private readonly PinterestService _pinterestService;
+		private readonly ActivityAndLocationHistoryService _activityAndLocationHistoryService;
 
 		public TasksController(TaskService taskService, ProjectService projectService, CamundaService camundaService,
-			SensorTaskService sensorTaskService, AmazonS3Service amazonS3Service, ActivityMapService activityMapService, PinterestService pinterestService)
+			SensorTaskService sensorTaskService, AmazonS3Service amazonS3Service, ActivityMapService activityMapService, PinterestService pinterestService,
+			ActivityAndLocationHistoryService activityAndLocationHistoryService)
 		{
 			_taskService = taskService;
 			_projectService = projectService;
@@ -36,6 +38,7 @@ namespace tasklist.Controllers
 			_amazonS3Service = amazonS3Service;
 			_activityMapService = activityMapService;
 			_pinterestService = pinterestService;
+			_activityAndLocationHistoryService = activityAndLocationHistoryService;
 		}
 
 		// GET: api/Tasks
@@ -433,6 +436,8 @@ namespace tasklist.Controllers
 						foreach (string media in task.ExtraMedia)
 							_pinterestService.CreatePin(media, currentProject.PinterestBoardId, boardSectionId);
 					}
+
+					//_activityAndLocationHistoryService.AddNewActivityAndLocationToCar(currentProject.CaseInstanceId, new ActivityAndLocation(taskToApprove.Name,DateTime.Parse(task.StartTime),DateTime.Parse(null),null));
 
 					_taskService.Create(new Task(task.Id, currentProcessInstanceId, task.StartTime, task.CompletionTime, task.CommentReport, task.CommentExtra, boardSectionId, sectionUrl, pins, ""));
 

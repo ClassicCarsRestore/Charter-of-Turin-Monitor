@@ -87,6 +87,7 @@ namespace tasklist.Controllers
     		existingVirtualMapLocation.Name = updatedVirtualMapLocation.Name;
     		existingVirtualMapLocation.CoordinateX = updatedVirtualMapLocation.CoordinateX;
     		existingVirtualMapLocation.CoordinateY = updatedVirtualMapLocation.CoordinateY;
+			existingVirtualMapLocation.Rotation = updatedVirtualMapLocation.Rotation;
     		// Update other properties as needed
 
     		await System.Threading.Tasks.Task.Run(() => _virtualMapLocationService.Update(id,existingVirtualMapLocation));

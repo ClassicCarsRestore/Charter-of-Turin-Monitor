@@ -20,10 +20,14 @@ namespace tasklist.Models
     [BsonElement("coordinateY")]
     public double CoordinateY { get; set; }
 
-    public VirtualMapLocation(string name, double coordinateX, double coordinateY){
+    [BsonElement("rotation")]
+    public double Rotation { get; set; }
+
+    public VirtualMapLocation(string name, double coordinateX, double coordinateY, double rotation){
         Name = name;
         CoordinateX = coordinateX;
         CoordinateY = coordinateY;
+        Rotation = rotation;
     }
     }
 }

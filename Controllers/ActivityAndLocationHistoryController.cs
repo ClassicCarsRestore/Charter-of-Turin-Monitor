@@ -39,11 +39,11 @@ namespace tasklist.Controllers
         	return CreatedAtRoute("GetActivityAndLocationHistory", new { id = request.Id.ToString() }, request);
 		}
 
-        /**
+        
 	    // GET: api/HistoryLocationCars/5
-        [HttpGet("{caseInstanceId}", Name = "GetActivityAndLocationHistoryByCar")]
+        [HttpGet("Car/{caseInstanceId}", Name = "GetActivityAndLocationHistoryByCar")]
         [Authorize]
-        public ActionResult<ActivityAndLocationHistory> GetByCar(string caseInstanceId)
+        public ActionResult<ActivityAndLocationHistory> GetByCaseInstanceId(string caseInstanceId)
         {
             var historyLocationCars = _activityAndLocationHistoryService.GetByCaseInstanceId(caseInstanceId);
 
@@ -54,7 +54,7 @@ namespace tasklist.Controllers
 
             return historyLocationCars;
         }
-**/
+
 	// GET: api/VirtualMapLocations/5
         [HttpGet("{id}", Name = "GetActivityAndLocationHistory")]
         [Authorize]

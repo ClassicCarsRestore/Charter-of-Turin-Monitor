@@ -28,15 +28,19 @@ namespace tasklist.Controllers
         private readonly CamundaService _camundaService;
         private readonly PinterestService _pinterestService;
         private readonly TaskService _taskService;
+        private readonly ActivityAndLocationHistoryService _activityAndLocationHistoryService;
+
 
         public ProjectsController(LoginCredentialsService credentialsService, ProjectService projectService, CamundaService camundaService, 
-            PinterestService pinterestService, TaskService taskService)
+            PinterestService pinterestService, TaskService taskService, ActivityAndLocationHistoryService activityAndLocationHistoryService)
         {
             _credentialsService = credentialsService;
             _projectService = projectService;
             _camundaService = camundaService;
             _pinterestService = pinterestService;
             _taskService = taskService;
+            _activityAndLocationHistoryService = activityAndLocationHistoryService;
+
         }
 
         // GET: api/Projects
@@ -271,6 +275,11 @@ namespace tasklist.Controllers
             Project project = new Project(projectForm.Make, projectForm.Model, projectForm.Year, sanitizedLicencePlate, projectForm.Country, projectForm.ChassisNo, projectForm.EngineNo, projectForm.OwnerEmail, projectForm.StartDate, generatedId, photoId, board.Id, boardUrl, null, "", "", "", "", "");
 
             _projectService.Create(project);
+
+            ActivityAndLocationHistory activityAndLocationHistory = new ActivityAndLocationHistory(generatedId,null);
+
+            _activityAndLocationHistoryService.Create(activityAndLocationHistory);
+
             // start the process in Camunda with the generated ID
             await _camundaService.StartProcessInstanceAsync("restoration_base", generatedId, projectForm);
 

@@ -437,7 +437,7 @@ namespace tasklist.Controllers
 							_pinterestService.CreatePin(media, currentProject.PinterestBoardId, boardSectionId);
 					}
 
-					//_activityAndLocationHistoryService.AddNewActivityAndLocationToCar(currentProject.CaseInstanceId, new ActivityAndLocation(taskToApprove.Name,DateTime.Parse(task.StartTime),DateTime.Parse(null),null));
+					_activityAndLocationHistoryService.AddNewActivityAndLocationToCar(currentProcessInstanceId, new ActivityAndLocation(taskToApprove.Name,DateTime.Parse(task.StartTime),DateTime.Parse(null),null));
 
 					_taskService.Create(new Task(task.Id, currentProcessInstanceId, task.StartTime, task.CompletionTime, task.CommentReport, task.CommentExtra, boardSectionId, sectionUrl, pins, ""));
 

@@ -23,12 +23,17 @@ namespace tasklist.Models
         [BsonElement("locationId")]
         public string LocationId { get; set; }
 
-        public ActivityAndLocation(string activityName, DateTime startDate, DateTime endDate, string locationId)
+        [BsonElement("locationConfirmed")]
+        public bool LocationConfirmed { get; set; }
+
+        public ActivityAndLocation(string activityName, DateTime startDate, DateTime? endDate, string locationId, bool locationConfirmed = false)
         {
+            Id = ObjectId.GenerateNewId().ToString();
             ActivityName = activityName;
             StartDate = startDate;
             EndDate = endDate;
             LocationId = locationId;
+            LocationConfirmed = locationConfirmed;
         }
     }
 }

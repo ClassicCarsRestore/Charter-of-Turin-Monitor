@@ -70,6 +70,28 @@ namespace tasklist.Controllers
             return virtualMapLocation;
         }
 
+        [HttpPut("{caseInstanceId}/activities/{activityAndLocationId}")]
+        public IActionResult UpdateActivity(string caseInstanceId, string activityAndLocationId, ActivityAndLocation updatedActivity)
+        {
+            try
+            {
+                var updatedHistory = _activityAndLocationHistoryService.UpdateActivityAndLocationInHistory(caseInstanceId, activityAndLocationId, updatedActivity);
+                if (updatedHistory == null)
+                {
+                    return NotFound();
+                }
+                return Ok(updatedHistory);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
 
     }
 }

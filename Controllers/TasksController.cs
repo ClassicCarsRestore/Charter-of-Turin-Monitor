@@ -437,8 +437,9 @@ namespace tasklist.Controllers
 							_pinterestService.CreatePin(media, currentProject.PinterestBoardId, boardSectionId);
 					}
 
-					_activityAndLocationHistoryService.AddNewActivityAndLocationToCar(currentProcessInstanceId, new ActivityAndLocation(taskToApprove.Name,DateTime.Parse(task.StartTime),DateTime.Parse(null),null));
-
+					DateTime? endDate = null;
+					_activityAndLocationHistoryService.AddNewActivityAndLocationToCar(currentProject.CaseInstanceId, new ActivityAndLocation(taskToApprove.Name,DateTime.Parse(task.StartTime),endDate,null));
+					
 					_taskService.Create(new Task(task.Id, currentProcessInstanceId, task.StartTime, task.CompletionTime, task.CommentReport, task.CommentExtra, boardSectionId, sectionUrl, pins, ""));
 
 					// delete the prediction if it was submitted

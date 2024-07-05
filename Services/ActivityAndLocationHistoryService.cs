@@ -35,17 +35,7 @@ namespace tasklist.Services
             _activityAndLocationHistory.InsertOne(activityAndLocationHistory);
             return activityAndLocationHistory;
         }
-/**
-        public ActivityAndLocationHistory AddNewActivityAndLocationToCar(string caseInstanceId, ActivityAndLocation newActivity)
-        {
-            var filter = Builders<ActivityAndLocationHistory>.Filter.Eq(h => h.CaseInstanceId, caseInstanceId);
-            var update = Builders<ActivityAndLocationHistory>.Update.Push(h => h.History, newActivity);
 
-            _activityAndLocationHistory.UpdateOne(filter, update);
-
-            return _activityAndLocationHistory.Find<ActivityAndLocationHistory>(filter).FirstOrDefault();
-        }
-**/
         public ActivityAndLocationHistory UpdateActivityInCarHistory(string caseInstanceId, string activityId, ActivityAndLocation updatedActivity)
         {
             var filter = Builders<ActivityAndLocationHistory>.Filter.And(
@@ -75,9 +65,10 @@ namespace tasklist.Services
                 }
                 else
                 {
-                     foreach (var activity in existingHistory.History.Where(a => a.EndDate == null))
+                   
+                    if (existingHistory.History == null)
                     {
-                        activity.EndDate = newActivity.StartDate;
+                    existingHistory.History = new List<ActivityAndLocation>();
                     }
                     // Add the new activity to the existing history
                     existingHistory.History.Add(newActivity);
@@ -116,11 +107,8 @@ namespace tasklist.Services
                 );
 
                 var update = Builders<ActivityAndLocationHistory>.Update
-                    .Set(h => h.History[-1].ActivityName, updatedActivity.ActivityName)
-                    .Set(h => h.History[-1].StartDate, updatedActivity.StartDate)
-                    .Set(h => h.History[-1].EndDate, updatedActivity.EndDate)
-                    .Set(h => h.History[-1].LocationId, updatedActivity.LocationId)
-                    .Set(h => h.History[-1].LocationConfirmed, updatedActivity.LocationConfirmed);
+                    .Set(h => h.History[-1].ActivityId, updatedActivity.ActivityId)
+                    .Set(h => h.History[-1].LocationId, updatedActivity.LocationId);
 
                 var options = new FindOneAndUpdateOptions<ActivityAndLocationHistory>
                 {
@@ -148,32 +136,6 @@ namespace tasklist.Services
 
         public void DeleteByCaseInstanceId(string caseInstanceId) =>
             _activityAndLocationHistory.DeleteOne(activityAndLocationHistory => activityAndLocationHistory.CaseInstanceId == caseInstanceId);
-
-        public List<ActivityAndLocationHistory> GetUnfinishedActivities()
-        {
-            var filter = Builders<ActivityAndLocationHistory>.Filter.ElemMatch(
-                h => h.History,
-                Builders<ActivityAndLocation>.Filter.Eq(a => a.EndDate, null)
-            );
-
-            return _activityAndLocationHistory.Find(filter).ToList();
-        }
-
-
-         public List<ActivityAndLocationHistory> GetUnfinishedActivitiesByCar(string caseInstanceId)
-        {
-            var filter = Builders<ActivityAndLocationHistory>.Filter.And(
-                Builders<ActivityAndLocationHistory>.Filter.Eq(h => h.CaseInstanceId, caseInstanceId),
-                Builders<ActivityAndLocationHistory>.Filter.ElemMatch(
-                    h => h.History,
-                    Builders<ActivityAndLocation>.Filter.Eq(a => a.EndDate, null)
-                )
-            );
-
-            return _activityAndLocationHistory.Find(filter).ToList();
-        }
-
-
 
 
     }

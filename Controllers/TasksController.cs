@@ -437,10 +437,9 @@ namespace tasklist.Controllers
 							_pinterestService.CreatePin(media, currentProject.PinterestBoardId, boardSectionId);
 					}
 
-					DateTime? endDate = null;
-					_activityAndLocationHistoryService.AddNewActivityAndLocationToCar(currentProject.CaseInstanceId, new ActivityAndLocation(taskToApprove.Name,DateTime.Parse(task.StartTime),endDate,null));
 					
-					_taskService.Create(new Task(task.Id, currentProcessInstanceId, task.StartTime, task.CompletionTime, task.CommentReport, task.CommentExtra, boardSectionId, sectionUrl, pins, ""));
+					var newTask = _taskService.Create(new Task(task.Id, currentProcessInstanceId, task.StartTime, task.CompletionTime, task.CommentReport, task.CommentExtra, boardSectionId, sectionUrl, pins, ""));
+					_activityAndLocationHistoryService.AddNewActivityAndLocationToCar(currentProject.CaseInstanceId, new ActivityAndLocation(newTask.Id,null));
 
 					// delete the prediction if it was submitted
 					SensorTask prediction = predictions.Find(p => p.ActivityId != null && p.ActivityId == taskToApprove.TaskDefinitionKey);

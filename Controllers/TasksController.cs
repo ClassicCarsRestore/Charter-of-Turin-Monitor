@@ -593,5 +593,20 @@ namespace tasklist.Controllers
 
 			return Ok();
 		}
+
+			// GET: api/Task/5
+        [HttpGet("{id:length(24)}", Name = "GetTaskById")]
+        [Authorize]
+        public ActionResult<Task> Get(string id)
+        {
+            var task = _taskService.Get(id);
+
+            if (task == null)
+            {
+                return NotFound();
+            }
+
+            return task;
+        }
 	}
 }

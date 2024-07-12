@@ -38,5 +38,12 @@ namespace tasklist.Services
         public void Remove(string id) =>
             _virtualmaplocations.DeleteOne(virtualMapLocation => virtualMapLocation.Id == id);
 
+        public List<string> GetLocationIdsByActivityId(string activityId)
+        {
+            var filter = Builders<VirtualMapLocation>.Filter.AnyEq(location => location.ActivityIds, activityId);
+            var locations = _virtualmaplocations.Find(filter).ToList();
+            return locations.Select(location => location.Id).ToList();
+        }
+
     }
 }

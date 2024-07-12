@@ -23,11 +23,15 @@ namespace tasklist.Models
     [BsonElement("rotation")]
     public double Rotation { get; set; }
 
-    public VirtualMapLocation(string name, double coordinateX, double coordinateY, double rotation){
+    [BsonElement("activityIds")]
+    public List<string> ActivityIds { get; set; }
+
+    public VirtualMapLocation(string name, double coordinateX, double coordinateY, double rotation, List<string> activityIds){
         Name = name;
         CoordinateX = coordinateX;
         CoordinateY = coordinateY;
         Rotation = rotation;
+        ActivityIds = activityIds;
     }
     }
 }

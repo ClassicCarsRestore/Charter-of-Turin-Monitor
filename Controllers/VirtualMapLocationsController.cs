@@ -88,12 +88,27 @@ namespace tasklist.Controllers
     		existingVirtualMapLocation.CoordinateX = updatedVirtualMapLocation.CoordinateX;
     		existingVirtualMapLocation.CoordinateY = updatedVirtualMapLocation.CoordinateY;
 			existingVirtualMapLocation.Rotation = updatedVirtualMapLocation.Rotation;
-    		// Update other properties as needed
+			existingVirtualMapLocation.ActivityIds = updatedVirtualMapLocation.ActivityIds;
 
     		await System.Threading.Tasks.Task.Run(() => _virtualMapLocationService.Update(id,existingVirtualMapLocation));
 
     		return NoContent();
 		}
+
+			// GET: api/VirtualMapLocations/5
+        [HttpGet("activity/{activityId}", Name = "GetLocationsWithActivity")]
+        [Authorize]
+        public ActionResult<List<string>> GetLocationIdsByActivityId(string activityId)
+        {
+            var virtualMapLocation = _virtualMapLocationService.GetLocationIdsByActivityId(activityId);
+
+            if (virtualMapLocation == null)
+            {
+                return NotFound();
+            }
+
+            return virtualMapLocation;
+        }
 
 		
 	}

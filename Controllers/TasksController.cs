@@ -572,7 +572,7 @@ namespace tasklist.Controllers
 
 		[DisableRequestSizeLimit]
 		[HttpGet("getBC/{processInstanceId}/{activityId}/")]
-		[Authorize(Roles = "admin, manager")]
+		//[Authorize(Roles = "admin, manager")]
 		public async Task<ActionResult<CamundaTaskDTO>> GetTaskBC(string processInstanceId, string activityId)
 		{
 			var camundaTask = await _camundaService.GetTaskForBC(processInstanceId, activityId);

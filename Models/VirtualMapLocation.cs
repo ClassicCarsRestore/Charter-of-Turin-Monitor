@@ -20,18 +20,30 @@ namespace tasklist.Models
     [BsonElement("coordinateY")]
     public double CoordinateY { get; set; }
 
-    [BsonElement("rotation")]
-    public double Rotation { get; set; }
+    [BsonElement("coordinateZ")]
+    public double CoordinateZ { get; set; }
+
+    [BsonElement("vertices")]
+    public List<VerticesCoordinates> Vertices { get; set; }
+
+    [BsonElement("color")]
+    public string Color { get; set; }
 
     [BsonElement("activityIds")]
     public List<string> ActivityIds { get; set; }
 
-    public VirtualMapLocation(string name, double coordinateX, double coordinateY, double rotation, List<string> activityIds){
+    [BsonElement("capacity")]
+    public int Capacity { get; set; }
+
+    public VirtualMapLocation(string name, double coordinateX, double coordinateY, double coordinateZ, List<string> activityIds, List<VerticesCoordinates> vertices, string color, int capacity){
         Name = name;
         CoordinateX = coordinateX;
         CoordinateY = coordinateY;
-        Rotation = rotation;
+        CoordinateZ = coordinateZ;
         ActivityIds = activityIds;
+        Vertices = vertices;
+        Color = color;
+        Capacity = capacity;
     }
     }
 }

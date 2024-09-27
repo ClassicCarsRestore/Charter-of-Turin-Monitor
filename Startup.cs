@@ -57,7 +57,8 @@ namespace tasklist
                                      "http://194.210.120.34*",
                                      "https://194.210.120.34*",
                                      "https://o3tbzwf5ek.execute-api.eu-central-1.amazonaws.com/prod",
-                                     "http://0.0.0.0:8000")
+                                     "http://0.0.0.0:8000",
+                                     "http://localhost:8000")
                         .AllowAnyMethod()
                         .AllowCredentials()
                         .AllowAnyHeader());

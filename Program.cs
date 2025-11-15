@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using DotNetEnv;
 
 namespace tasklist
 {
@@ -13,6 +14,7 @@ namespace tasklist
     {
         public static void Main(string[] args)
         {
+            Env.Load();
             CreateHostBuilder(args).Build().Run();
         }
 

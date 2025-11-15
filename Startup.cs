@@ -10,6 +10,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System;
+using System.Linq;
 using System.Text;
 using tasklist.Models;
 using tasklist.Services;
@@ -30,35 +31,22 @@ namespace tasklist
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            /*
             services.AddCors(options =>
             {
-                options.AddPolicy(name: MyAllowSpecificOrigins,
-                                  builder =>
-                                  {
-                                      builder.WithOrigins("http://194.210.120.34*",
-                                                          "https://194.210.120.34*",
-                                                          "*")
-                                                            .AllowAnyHeader()
-                                                            .AllowAnyMethod()
-                                                            .SetIsOriginAllowedToAllowWildcardSubdomains();
-                                  });
+                var corsOrigins = Environment.GetEnvironmentVariable("CORS_ORIGINS");
+                if (string.IsNullOrEmpty(corsOrigins))
+                {
+                    throw new InvalidOperationException("CORS_ORIGINS environment variable is not set. Please configure it in .env file or system environment variables.");
+                }
 
-            });
-            */
+                var origins = corsOrigins.Split(',', System.StringSplitOptions.RemoveEmptyEntries)
+                    .Select(o => o.Trim())
+                    .ToArray();
 
-            services.AddCors(options =>
-            {
                 options.AddPolicy(name: MyAllowSpecificOrigins,
                     builder => builder
                         .SetIsOriginAllowedToAllowWildcardSubdomains()
-                        .WithOrigins("http://194.210.120.34",
-                                     "https://194.210.120.34", 
-                                     "http://194.210.120.34*",
-                                     "https://194.210.120.34*",
-                                     "https://o3tbzwf5ek.execute-api.eu-central-1.amazonaws.com/prod",
-                                     "http://0.0.0.0:8000",
-                                     "http://localhost:8000")
+                        .WithOrigins(origins)
                         .AllowAnyMethod()
                         .AllowCredentials()
                         .AllowAnyHeader());

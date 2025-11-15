@@ -196,7 +196,8 @@ namespace tasklist.Services
                 return null;
             }
 
-            return new { source_type = "video_id", cover_image_url = "http://194.210.120.34:5000/Play.jpg", media_id = media.media_id };
+            var coverImageUrl = Settings.Pinterest_Cover_Image_URL ?? "http://localhost:5000/Play.jpg";
+            return new { source_type = "video_id", cover_image_url = coverImageUrl, media_id = media.media_id };
         }
 
         public Task<HttpResponseMessage> CreateBoard(ProjectFormDTO projectForm)

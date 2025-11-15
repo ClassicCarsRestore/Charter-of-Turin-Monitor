@@ -1,7 +1,7 @@
-﻿FROM mcr.microsoft.com/dotnet/sdk:5.0.103 AS build
+﻿FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /build
 
-RUN curl -sL https://deb.nodesource.com/setup_12.x |  bash -
+RUN curl -sL https://deb.nodesource.com/setup_22.x |  bash -
 RUN apt-get install -y nodejs
 
 COPY ./*.csproj .
@@ -11,7 +11,7 @@ COPY . .
 WORKDIR /build
 RUN dotnet publish -c release -o published --no-cache
 
-FROM mcr.microsoft.com/dotnet/aspnet:5.0
+FROM mcr.microsoft.com/dotnet/aspnet:9.0
 WORKDIR /app
 
 RUN apt-get update

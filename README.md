@@ -3,51 +3,18 @@ Tasklist application to replace the default 'Camunda Tasklist' with the added fu
 
 ## Configuration
 
-### Edit file Settings.cs
+### Setup Environment Variables
 
-Change the secrets, the email credentials, and the Pinterest app information.
+All secrets and configuration are managed through environment variables for security. Follow these steps:
 
-Format:
+#### 1. Create .env file (Local Development)
 
-```bash
-public const string Secret = "YourSecret";
+Copy the `.env.example` file to `.env` and fill in with the desired values.
 
-public const string Camera_Hub_Secret = "CameraHubSecret";
-
-public const string Email_Address = "EmailAddress";
-public const string Email_Password = "EmailPassword";
-
-public const string Pinterest_ID = "PinterestAppID";
-public const string Pinterest_Secret = "PinterestAppSecret";
-public const string Pinterest_Account = "PinterestAccountUsername";
-```
-
-### Edit file mongo-init.js
+### Edit file mongo-init.js  (TODO to be fixed/removed)
 
 Change the AWS credentials and the credentials for the first admin user.
 
-Format:
+#### 2. Docker Deployment
 
-```bash
-db = db.getSiblingDB('TasklistDb');
-
-db.createCollection('Credentials');
-
-db.Credentials.insertOne(
-	{
-		username: "s3-processed-data-read-access-user",
-		access_key_id: "your_access_key_id",
-		secret_access_key: "your_secret_access_key"
-	}
-);
-
-db.createCollection('LoginCredentials');
-
-db.LoginCredentials.insertOne(
-	{
-		role: "admin",
-		email: "AdminEmail",
-		password: "AdminPassword"
-	}
-);
-```
+For Docker Compose deployments, create a `.env` file in the project root with all required environment variables. Docker Compose will automatically load and pass these to the container.

@@ -83,35 +83,40 @@ namespace tasklist.Controllers
             var password = UtilManager.RandString(10);
 
             if (_credentialsService.Create(new LoginCredentials(trimmedEmail, UtilManager.EncryptPassword(password), account.Role, account.Name))) {
+                
                 var messageSubject = "Charter of Turin Monitor Credentials / Moniteur de la Charte de Turin Accréditation";
                 var messageBody = $"[EN]\nYour credentials for the Charter of Turin Monitor platform are:\nUsername: {trimmedEmail}\nPassword: {password}\n\n" +
-                    $"You can access it with the following link: http://194.210.120.34:5000/ \n\n" +
+                    $"You can access it with the following link: {Settings.Platform_URL} \n\n" +
                     $"----------------------------------------------------------------------------\n" +
                     $"[FR]\nVotre accréditation pour la plateforme du Moniteur de la Charte de Turin est la suivante: \nNom d'utilisateur: {trimmedEmail}\n Mot de passe: {password}\n\n"+
-                    $"Vous pouvez y acceder avec le lien suivant: http://194.210.120.34:5000/";
+                    $"Vous pouvez y acceder avec le lien suivant: {Settings.Platform_URL}";
 
 
                 if (UtilManager.SendEmail(trimmedEmail, messageSubject, messageBody)) {
                     //Blockchain
-                    using (HttpClient client = new HttpClient())
+                    var blockchainApiUrl = Settings.Blockchain_API_URL;
+                    if (!string.IsNullOrEmpty(blockchainApiUrl))
                     {
-                        string[] accountName = account.Name.Split(' ');
-                        var formData = new
+                        using (HttpClient client = new HttpClient())
                         {
-                            email = trimmedEmail,
-                            password = password,
-                            orgname = "Org1",
-                            firstname = accountName[0],
-                            surname = accountName[1],
-                            country = "Portugal"
-                        };
-                        string jsonContent = JsonConvert.SerializeObject(formData);
-                        StringContent content = new StringContent(jsonContent, System.Text.Encoding.UTF8, "application/json");
-                        try {
-                            HttpResponseMessage response = await client.PostAsync("https://gui.classicschain.com:8393/api/Users", content);
-                        }
-                        catch (Exception ex){
-                            Console.WriteLine("Exception: " + ex.Message);
+                            string[] accountName = account.Name.Split(' ');
+                            var formData = new
+                            {
+                                email = trimmedEmail,
+                                password = password,
+                                orgname = "Org1",
+                                firstname = accountName[0],
+                                surname = accountName[1],
+                                country = "Portugal"
+                            };
+                            string jsonContent = JsonConvert.SerializeObject(formData);
+                            StringContent content = new StringContent(jsonContent, System.Text.Encoding.UTF8, "application/json");
+                            try {
+                                HttpResponseMessage response = await client.PostAsync(blockchainApiUrl, content);
+                            }
+                            catch (Exception ex){
+                                Console.WriteLine("Exception: " + ex.Message);
+                            }
                         }
                     }
                     //Blockchain-End

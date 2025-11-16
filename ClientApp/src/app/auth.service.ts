@@ -5,7 +5,7 @@ import { BehaviorSubject } from 'rxjs';
 import { Token } from './common/tokens';
 import { Credentials, CredentialToken, CredentialsBC, CredentialBCToken } from './credentials';
 import { Account } from './user';
-import { envBC } from './envBC';
+// import { envBC } from './envBC';
 
 @Injectable()
 export class AuthService {
@@ -39,10 +39,10 @@ export class AuthService {
 
         if (response.role == "admin") {
           this.router.navigate(['pinterest']);
-          let userChain = new CredentialsBC(envBC.adminBCEmail, envBC.adminBCpassword, envBC.adminBCorg)
-          this.client.post<CredentialBCToken>('https://gui.classicschain.com:8393/api/Users/Login', userChain).subscribe(result2 => {
-            localStorage.setItem('ChainToken', result2.message.token);
-          });
+          // let userChain = new CredentialsBC(envBC.adminBCEmail, envBC.adminBCpassword, envBC.adminBCorg)
+          // this.client.post<CredentialBCToken>('https://gui.classicschain.com:8393/api/Users/Login', userChain).subscribe(result2 => {
+          //   localStorage.setItem('ChainToken', result2.message.token);
+          // });
           
         }
         else

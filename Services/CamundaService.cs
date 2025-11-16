@@ -18,8 +18,6 @@ namespace tasklist.Services
     /// </summary>
     public class CamundaService
     {
-        private static readonly string BASE_URL = "http://194.210.120.34:591/engine-rest/"; //"http://localhost:591/engine-rest/"
-
         private static readonly HttpClient _client;
 
         static CamundaService()
@@ -35,7 +33,7 @@ namespace tasklist.Services
         {
             List<CamundaTask> tasks = new();
 
-            HttpResponseMessage response = await _client.GetAsync(BASE_URL + "task");
+            HttpResponseMessage response = await _client.GetAsync(Settings.Camunda_Base_URL + "task");
             if (response.IsSuccessStatusCode)
             {
                 tasks = await response.Content.ReadFromJsonAsync<List<CamundaTask>>();
@@ -53,7 +51,7 @@ namespace tasklist.Services
         {
             List<CamundaTask> tasks = new();
 
-            HttpResponseMessage response = await _client.GetAsync(BASE_URL + "task");
+            HttpResponseMessage response = await _client.GetAsync(Settings.Camunda_Base_URL + "task");
             if (response.IsSuccessStatusCode)
             {
                 tasks = await response.Content.ReadFromJsonAsync<List<CamundaTask>>();
@@ -66,7 +64,7 @@ namespace tasklist.Services
 
         public async Task<CamundaProcessInstance> GetProcessInstanceAsync(string processInstanceId)
         {
-            HttpResponseMessage response = await _client.GetAsync(BASE_URL + "process-instance/" + processInstanceId);
+            HttpResponseMessage response = await _client.GetAsync(Settings.Camunda_Base_URL + "process-instance/" + processInstanceId);
             if (response.IsSuccessStatusCode)
                 return await response.Content.ReadFromJsonAsync<CamundaProcessInstance>();
             return null;
@@ -74,7 +72,7 @@ namespace tasklist.Services
 
         public async Task<CamundaHistoryProcessInstance> GetHistoryProcessInstanceAsync(string processInstanceId)
         {
-            HttpResponseMessage response = await _client.GetAsync(BASE_URL + "history/process-instance/" + processInstanceId);
+            HttpResponseMessage response = await _client.GetAsync(Settings.Camunda_Base_URL + "history/process-instance/" + processInstanceId);
             if (response.IsSuccessStatusCode)
                 return await response.Content.ReadFromJsonAsync<CamundaHistoryProcessInstance>();
             return null;
@@ -82,7 +80,7 @@ namespace tasklist.Services
 
         public async Task<List<CamundaProcessInstance>> GetProccessInstancesFromCaseAsync(string caseInstanceId)
         {
-            HttpResponseMessage response = await _client.GetAsync(BASE_URL + "history/process-instance?caseInstanceId=" + caseInstanceId);
+            HttpResponseMessage response = await _client.GetAsync(Settings.Camunda_Base_URL + "history/process-instance?caseInstanceId=" + caseInstanceId);
             if (response.IsSuccessStatusCode)
                 return await response.Content.ReadFromJsonAsync<List<CamundaProcessInstance>>();
             return null;
@@ -90,7 +88,7 @@ namespace tasklist.Services
 
         public async Task<CamundaProcessInstance> GetSuperProcessAsync(string processInstanceId)
         {
-            HttpResponseMessage response = await _client.GetAsync(BASE_URL + "process-instance?subProcessInstance=" + processInstanceId);
+            HttpResponseMessage response = await _client.GetAsync(Settings.Camunda_Base_URL + "process-instance?subProcessInstance=" + processInstanceId);
             if (response.IsSuccessStatusCode)
                 return (await response.Content.ReadFromJsonAsync<List<CamundaProcessInstance>>()).LastOrDefault();
             return null;
@@ -98,7 +96,7 @@ namespace tasklist.Services
 
         public async Task<CamundaProcessDefinition> GetProcessDefinitionAsync(string definitionId)
         {
-            HttpResponseMessage response = await _client.GetAsync(BASE_URL + "process-definition/" + definitionId);
+            HttpResponseMessage response = await _client.GetAsync(Settings.Camunda_Base_URL + "process-definition/" + definitionId);
             if (response.IsSuccessStatusCode)
                 return await response.Content.ReadFromJsonAsync<CamundaProcessDefinition>();
             return null;
@@ -106,7 +104,7 @@ namespace tasklist.Services
 
         public async Task<CamundaTask> GetTask(string activityId)
         {
-            HttpResponseMessage response = await _client.GetAsync(BASE_URL + "task/" + activityId);
+            HttpResponseMessage response = await _client.GetAsync(Settings.Camunda_Base_URL + "task/" + activityId);
             if (response.IsSuccessStatusCode) {
                 return await response.Content.ReadFromJsonAsync<CamundaTask>();
             }
@@ -115,7 +113,7 @@ namespace tasklist.Services
 
         public async Task<CamundaTask> GetTask(string processInstanceId, string activityId)
         {
-            HttpResponseMessage response = await _client.GetAsync(BASE_URL + "history/task?processInstanceId=" + processInstanceId + "&activityId=" + activityId);
+            HttpResponseMessage response = await _client.GetAsync(Settings.Camunda_Base_URL + "history/task?processInstanceId=" + processInstanceId + "&activityId=" + activityId);
             if (response.IsSuccessStatusCode) {
                 var t = await response.Content.ReadFromJsonAsync<List<CamundaTask>>();
                 return t.FirstOrDefault();
@@ -125,7 +123,7 @@ namespace tasklist.Services
 
         public async Task<CamundaTask> GetTaskForBC(string processInstanceId, string activityId)
         {
-            HttpResponseMessage response = await _client.GetAsync(BASE_URL + "history/task?processInstanceId=" + processInstanceId + "&activityId=" + activityId);
+            HttpResponseMessage response = await _client.GetAsync(Settings.Camunda_Base_URL + "history/task?processInstanceId=" + processInstanceId + "&activityId=" + activityId);
             if (response.IsSuccessStatusCode) {
                 var t = await response.Content.ReadFromJsonAsync<List<CamundaTask>>();
                 var taskBC = t.Where(item => item.TaskDefinitionKey == activityId).LastOrDefault();
@@ -136,7 +134,7 @@ namespace tasklist.Services
 
         public async Task<CamundaHistoryTask> GetHistoryTask(string processInstanceId, string activityId)
         {
-            HttpResponseMessage response = await _client.GetAsync(BASE_URL + "history/activity-instance?processInstanceId=" + processInstanceId + "&activityId=" + activityId);
+            HttpResponseMessage response = await _client.GetAsync(Settings.Camunda_Base_URL + "history/activity-instance?processInstanceId=" + processInstanceId + "&activityId=" + activityId);
             if (response.IsSuccessStatusCode) {
                 var t = await response.Content.ReadFromJsonAsync<List<CamundaHistoryTask>>();
                 return t.FirstOrDefault();
@@ -153,7 +151,7 @@ namespace tasklist.Services
         {
             List<CamundaTask> tasks = new();
 
-            HttpResponseMessage response = await _client.GetAsync(BASE_URL + "task?processInstanceId=" + processInstanceId);
+            HttpResponseMessage response = await _client.GetAsync(Settings.Camunda_Base_URL + "task?processInstanceId=" + processInstanceId);
             if (response.IsSuccessStatusCode)
             {
                 tasks = await response.Content.ReadFromJsonAsync<List<CamundaTask>>();
@@ -193,7 +191,7 @@ namespace tasklist.Services
 
             string caseInstanceId = null;
 
-            HttpResponseMessage response = await _client.PostAsync(BASE_URL + "process-definition/key/" + processId
+            HttpResponseMessage response = await _client.PostAsync(Settings.Camunda_Base_URL + "process-definition/key/" + processId
                 + "/start", requestContent);
             if (response.IsSuccessStatusCode)
             {
@@ -215,7 +213,7 @@ namespace tasklist.Services
         {
             CamundaDiagramXML xml = null;
 
-            HttpResponseMessage response = await _client.GetAsync(BASE_URL + "process-definition/" + processDefinitionId + "/xml");
+            HttpResponseMessage response = await _client.GetAsync(Settings.Camunda_Base_URL + "process-definition/" + processDefinitionId + "/xml");
             if (response.IsSuccessStatusCode)
             {
                 xml = await response.Content.ReadFromJsonAsync<CamundaDiagramXML>();
@@ -234,7 +232,7 @@ namespace tasklist.Services
         {
             List<CamundaHistoryTask> history = new();
 
-            HttpResponseMessage response = await _client.GetAsync(BASE_URL + "history/activity-instance?processInstanceId=" + processInstanceId);
+            HttpResponseMessage response = await _client.GetAsync(Settings.Camunda_Base_URL + "history/activity-instance?processInstanceId=" + processInstanceId);
             if (response.IsSuccessStatusCode)
             {
                 history = await response.Content.ReadFromJsonAsync<List<CamundaHistoryTask>>();
@@ -269,7 +267,7 @@ namespace tasklist.Services
         {
             List<CamundaHistoryVariables> history = new();
 
-            HttpResponseMessage response = await _client.GetAsync(BASE_URL + "history/variable-instance?processInstanceId=" + processInstanceId);
+            HttpResponseMessage response = await _client.GetAsync(Settings.Camunda_Base_URL + "history/variable-instance?processInstanceId=" + processInstanceId);
             if (response.IsSuccessStatusCode)
             {
                 history = await response.Content.ReadFromJsonAsync<List<CamundaHistoryVariables>>();
@@ -311,7 +309,7 @@ namespace tasklist.Services
             var processArgsSerialized = System.Text.Json.JsonSerializer.Serialize(processArgs, serializeOptions);
             var requestContent = new StringContent(processArgsSerialized, Encoding.UTF8, "application/json");
 
-            HttpResponseMessage response = await _client.PostAsync(BASE_URL + "task/" + id
+            HttpResponseMessage response = await _client.PostAsync(Settings.Camunda_Base_URL + "task/" + id
                 + "/complete", requestContent);
             if (response.IsSuccessStatusCode)
             {
@@ -351,7 +349,7 @@ namespace tasklist.Services
             var processArgsSerialized = System.Text.Json.JsonSerializer.Serialize(processArgs, serializeOptions);
             var requestContent = new StringContent(processArgsSerialized, Encoding.UTF8, "application/json");
 
-            HttpResponseMessage response = await _client.PostAsync(BASE_URL + "message", requestContent);
+            HttpResponseMessage response = await _client.PostAsync(Settings.Camunda_Base_URL + "message", requestContent);
             if (response.IsSuccessStatusCode)
             {
                 var res = response.Content.ReadAsStringAsync();
@@ -386,7 +384,7 @@ namespace tasklist.Services
             var processArgsSerialized = System.Text.Json.JsonSerializer.Serialize(processArgs, serializeOptions);
             var requestContent = new StringContent(processArgsSerialized, Encoding.UTF8, "application/json");
 
-            HttpResponseMessage response = await _client.PostAsync(BASE_URL + "signal", requestContent);
+            HttpResponseMessage response = await _client.PostAsync(Settings.Camunda_Base_URL + "signal", requestContent);
             if (response.IsSuccessStatusCode)
             {
                 var res = response.Content.ReadAsStringAsync();
@@ -413,7 +411,7 @@ namespace tasklist.Services
             var processArgsSerialized = System.Text.Json.JsonSerializer.Serialize(processArgs, serializeOptions);
             var requestContent = new StringContent(processArgsSerialized, Encoding.UTF8, "application/json");
 
-            HttpResponseMessage response = await _client.PostAsync(BASE_URL + "process-instance/delete", requestContent);
+            HttpResponseMessage response = await _client.PostAsync(Settings.Camunda_Base_URL + "process-instance/delete", requestContent);
 
             response.EnsureSuccessStatusCode();
 
@@ -423,12 +421,12 @@ namespace tasklist.Services
         {
             var instances = await GetProccessInstancesFromCaseAsync(caseInstanceId);
             foreach(var instance in instances)
-                _client.DeleteAsync(BASE_URL + "process-instance/" + instance.Id);
+                _client.DeleteAsync(Settings.Camunda_Base_URL + "process-instance/" + instance.Id);
         }
 
         public async Task<List<CamundaCalledProcessDefinition>> GetCalledProcessDefinitions(string processDefinitionId)
         {
-            HttpResponseMessage response = await _client.GetAsync(BASE_URL + "process-definition/" + processDefinitionId + "/static-called-process-definitions");
+            HttpResponseMessage response = await _client.GetAsync(Settings.Camunda_Base_URL + "process-definition/" + processDefinitionId + "/static-called-process-definitions");
             if (response.IsSuccessStatusCode)
             {
                 var calledProcessDefinitions = await response.Content.ReadFromJsonAsync<List<CamundaCalledProcessDefinition>>();
@@ -439,7 +437,7 @@ namespace tasklist.Services
 
         public async Task<CamundaProcessDefinition> GetRoot()
         {
-            HttpResponseMessage response = await _client.GetAsync(BASE_URL + "process-definition?latestVersion=true");
+            HttpResponseMessage response = await _client.GetAsync(Settings.Camunda_Base_URL + "process-definition?latestVersion=true");
             if (response.IsSuccessStatusCode)
             {
                 var processDefinitions = await response.Content.ReadFromJsonAsync<List<CamundaProcessDefinition>>();
@@ -456,7 +454,7 @@ namespace tasklist.Services
 
         public async Task<string> GetProcessInstanceVariable(string processInstanceId, string variableName)
         {
-            HttpResponseMessage response = await _client.GetAsync(BASE_URL + "history/variable-instance?processInstanceId=" + processInstanceId + "&variableName=" + variableName);
+            HttpResponseMessage response = await _client.GetAsync(Settings.Camunda_Base_URL + "history/variable-instance?processInstanceId=" + processInstanceId + "&variableName=" + variableName);
             if (response.IsSuccessStatusCode)
             {
                 var variables = await response.Content.ReadFromJsonAsync<List<Variable>>();
@@ -469,7 +467,7 @@ namespace tasklist.Services
 
         public async Task<CamundaHistoryProcessInstance> GetRootProcessAsync(string caseInstanceId)
         {
-            HttpResponseMessage response = await _client.GetAsync(BASE_URL + "history/process-instance?caseInstanceId=" + caseInstanceId + "&rootProcessInstances=true");
+            HttpResponseMessage response = await _client.GetAsync(Settings.Camunda_Base_URL + "history/process-instance?caseInstanceId=" + caseInstanceId + "&rootProcessInstances=true");
             if (response.IsSuccessStatusCode)
                 return (await response.Content.ReadFromJsonAsync<List<CamundaHistoryProcessInstance>>())[0];
             return null;

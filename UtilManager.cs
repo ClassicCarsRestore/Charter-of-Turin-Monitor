@@ -21,8 +21,8 @@ namespace tasklist
             SmtpClient client = new SmtpClient();
             client.DeliveryMethod = SmtpDeliveryMethod.Network;
             client.EnableSsl = true;
-            client.Host = "smtp.gmail.com";
-            client.Port = 587;
+            client.Host = Settings.SMTP_Host;
+            client.Port = Settings.SMTP_Port;
 
             // setup Smtp authentication
             NetworkCredential credentials = new NetworkCredential(Settings.Email_Address, Settings.Email_Password);
@@ -63,6 +63,7 @@ namespace tasklist
             return randomstring;
         }
 
+        // TODO use PasswordHasher instead, stop using fixed salt
         public static string EncryptPassword(string password)
         {
             string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(

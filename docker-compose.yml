@@ -1,6 +1,4 @@
-﻿version: '3.1'
-
-services:
+﻿services:
   mongo:
     image: mongo
     restart: always
@@ -8,18 +6,7 @@ services:
       - 27017:27017
     volumes:
       - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
-  mongo-express:
-    image: mongo-express
-    restart: always
-    ports:
-      - 8081:8081
-    environment:
-      ME_CONFIG_MONGODB_ADMINUSERNAME: root
-      ME_CONFIG_MONGODB_ADMINPASSWORD: toor
-      ME_CONFIG_BASICAUTH_USERNAME: root
-      ME_CONFIG_BASICAUTH_PASSWORD: toor
-    depends_on:
-      - mongo
+
   tasklist:
     build: .
     restart: always
@@ -38,5 +25,30 @@ services:
       CameraHubDatabaseSettings__Host: mongo
       VirtualMapLocationsDatabaseSettings__Host: mongo
       ActivityAndLocationHistoryDatabaseSettings__Host: mongo
+      # JWT and Authentication
+      JWT_SECRET: ${JWT_SECRET}
+      PASSWORD_SALT: ${PASSWORD_SALT}
+      # API Secrets
+      CAMERA_HUB_SECRET: ${CAMERA_HUB_SECRET}
+      CONNECTOR_SECRET: ${CONNECTOR_SECRET}
+      # Email Configuration
+      EMAIL_ADDRESS: ${EMAIL_ADDRESS}
+      EMAIL_PASSWORD: ${EMAIL_PASSWORD}
+      # Pinterest OAuth Configuration
+      PINTEREST_ID: ${PINTEREST_ID}
+      PINTEREST_SECRET: ${PINTEREST_SECRET}
+      PINTEREST_REDIRECT_URI: ${PINTEREST_REDIRECT_URI}
+      PINTEREST_SCOPE: ${PINTEREST_SCOPE}
+      PINTEREST_API_URL: ${PINTEREST_API_URL}
+      PINTEREST_PHOTOS_URL: ${PINTEREST_PHOTOS_URL}
+      PINTEREST_ACCOUNT: ${PINTEREST_ACCOUNT}
+      # Camunda Configuration
+      CAMUNDA_BASE_URL: ${CAMUNDA_BASE_URL}
+      # Application URLs
+      PLATFORM_URL: ${PLATFORM_URL}
+      BLOCKCHAIN_API_URL: ${BLOCKCHAIN_API_URL:-}
+      PINTEREST_COVER_IMAGE_URL: ${PINTEREST_COVER_IMAGE_URL}
+      # CORS Configuration
+      CORS_ORIGINS: ${CORS_ORIGINS}
     depends_on:
       - mongo

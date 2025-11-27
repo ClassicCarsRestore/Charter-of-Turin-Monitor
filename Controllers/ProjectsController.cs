@@ -332,9 +332,11 @@ namespace tasklist.Controllers
             }
 
             var account = _credentialsService.GetAccount(currentProject.OwnerEmail);
+            if (account == null) return NotFound();
+
             var boardPins= await _pinterestService.GetPinsFromBoard(currentProject.PinterestBoardId);
 
-            var mainImage = boardPins.FindLast(i => i.Id == currentProject.PhotoId);
+            var mainImage = boardPins?.FindLast(i => i.Id == currentProject.PhotoId);
             if(mainImage != null)
                 using (WebClient webClient = new WebClient())
                 {
@@ -344,8 +346,9 @@ namespace tasklist.Controllers
                 }
 
             string clientExpectation = null;
-            
+
             var processInstance = await _camundaService.GetRootProcessAsync(caseInstanceId);
+            if (processInstance == null) return NotFound();
             clientExpectation = await _camundaService.GetProcessInstanceVariable(processInstance.Id, "clientExpectation");
 
             StringBuilder contents = new StringBuilder();

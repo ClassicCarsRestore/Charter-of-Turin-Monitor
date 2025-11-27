@@ -321,6 +321,10 @@ namespace tasklist.Controllers
         {
             Console.WriteLine($"[EvidenceDownload] Starting evidence generation for caseInstanceId: {caseInstanceId}");
 
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls13;
+            ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
+            Console.WriteLine($"[EvidenceDownload] SSL/TLS configuration set: TLS 1.2/1.3 enabled");
+
             ClaimsPrincipal claims = JwtManager.GetPrincipal(JwtManager.GetToken(Request));
             string role = claims.FindFirst(c => c.Type == ClaimTypes.Role).Value;
             Console.WriteLine($"[EvidenceDownload] User role: {role}");

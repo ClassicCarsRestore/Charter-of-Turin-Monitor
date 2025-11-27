@@ -369,7 +369,7 @@ namespace tasklist.Controllers
                 endDate = currentProject.EndDate.ToShortDateString();
             contents.AppendLine(@"\def\carenddate{" + endDate + "}");
             contents.AppendLine(@"\def\carpinterestaccess{" + currentProject.PinterestBoardAccessUrl + "}");
-            contents.AppendLine(@"\def\paintRecordNumber{" + currentProject.PaintRecordNumber  + "}");
+            contents.AppendLine(@"\def\paintRecordNumber{" + currentProject.PaintRecordNumber?.Replace("#", "##")  + "}");
             contents.AppendLine(@"\def\paintDesignation{" + currentProject.PaintDesignation  + "}");
             contents.AppendLine(@"\def\paintTechnique{" + currentProject.PaintTechnique  + "}");
             contents.AppendLine(@"\def\paintOriginalYear{" + currentProject.PaintOriginalYear  + "}");

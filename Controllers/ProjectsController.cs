@@ -319,41 +319,95 @@ namespace tasklist.Controllers
         [Authorize]
         public async Task<ActionResult<string>> EvidenceDownloadAsync(string caseInstanceId)
         {
+            Console.WriteLine($"[EvidenceDownload] Starting evidence generation for caseInstanceId: {caseInstanceId}");
+
             ClaimsPrincipal claims = JwtManager.GetPrincipal(JwtManager.GetToken(Request));
             string role = claims.FindFirst(c => c.Type == ClaimTypes.Role).Value;
+            Console.WriteLine($"[EvidenceDownload] User role: {role}");
 
             Project currentProject = _projectService.GetByCaseInstanceId(caseInstanceId);
 
-            if (currentProject == null) return NotFound();
+            if (currentProject == null)
+            {
+                Console.WriteLine($"[EvidenceDownload] ERROR: Project not found for caseInstanceId: {caseInstanceId}");
+                return NotFound();
+            }
+
+            Console.WriteLine($"[EvidenceDownload] Project found: {currentProject.Id}, Owner: {currentProject.OwnerEmail}");
 
             if (role == "owner" && currentProject.OwnerEmail != claims.FindFirst(c => c.Type == ClaimTypes.Email).Value && currentProject.IsComplete)
             {
+                Console.WriteLine($"[EvidenceDownload] ERROR: Authorization failed for owner");
                 return Forbid();
             }
 
             var account = _credentialsService.GetAccount(currentProject.OwnerEmail);
-            if (account == null) return NotFound();
+            if (account == null)
+            {
+                Console.WriteLine($"[EvidenceDownload] ERROR: Account not found for email: {currentProject.OwnerEmail}");
+                return NotFound();
+            }
 
+            Console.WriteLine($"[EvidenceDownload] Account found: {account.Name}");
+
+            Console.WriteLine($"[EvidenceDownload] Checking Pinterest credentials...");
             if(!await _pinterestService.CheckAndUpdateCredentialsAsync())
+            {
+                Console.WriteLine($"[EvidenceDownload] ERROR: Pinterest credentials check failed");
                 return Unauthorized();
+            }
+            Console.WriteLine($"[EvidenceDownload] Pinterest credentials OK");
 
+            Console.WriteLine($"[EvidenceDownload] Fetching pins from Pinterest board: {currentProject.PinterestBoardId}");
             var boardPins= await _pinterestService.GetPinsFromBoard(currentProject.PinterestBoardId);
+
+            if (boardPins == null)
+            {
+                Console.WriteLine($"[EvidenceDownload] WARNING: No pins found for board: {currentProject.PinterestBoardId}");
+            }
+            else
+            {
+                Console.WriteLine($"[EvidenceDownload] Found {boardPins.Count} pins on board");
+            }
 
             var mainImage = boardPins?.FindLast(i => i.Id == currentProject.PhotoId);
             if(mainImage != null)
-                using (WebClient webClient = new WebClient())
+            {
+                Console.WriteLine($"[EvidenceDownload] Downloading main image: {mainImage.Id}");
+                try
                 {
-                    byte[] dataArr = webClient.DownloadData(mainImage.Media.Images["1200x"].Url);
-                    //save file to local
-                    System.IO.File.WriteAllBytes($"data/images/{mainImage.Id}.jpg", dataArr);
+                    using (WebClient webClient = new WebClient())
+                    {
+                        byte[] dataArr = webClient.DownloadData(mainImage.Media.Images["1200x"].Url);
+                        System.IO.File.WriteAllBytes($"data/images/{mainImage.Id}.jpg", dataArr);
+                        Console.WriteLine($"[EvidenceDownload] Main image saved successfully");
+                    }
                 }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[EvidenceDownload] ERROR downloading main image: {ex.Message}");
+                }
+            }
+            else
+            {
+                Console.WriteLine($"[EvidenceDownload] WARNING: Main image not found with PhotoId: {currentProject.PhotoId}");
+            }
 
             string clientExpectation = null;
 
+            Console.WriteLine($"[EvidenceDownload] Fetching root process instance for case: {caseInstanceId}");
             var processInstance = await _camundaService.GetRootProcessAsync(caseInstanceId);
-            if (processInstance == null) return NotFound();
-            clientExpectation = await _camundaService.GetProcessInstanceVariable(processInstance.Id, "clientExpectation");
+            if (processInstance == null)
+            {
+                Console.WriteLine($"[EvidenceDownload] ERROR: Root process instance not found");
+                return NotFound();
+            }
+            Console.WriteLine($"[EvidenceDownload] Root process instance found: {processInstance.Id}");
 
+            clientExpectation = await _camundaService.GetProcessInstanceVariable(processInstance.Id, "clientExpectation");
+            Console.WriteLine($"[EvidenceDownload] Client expectation: {clientExpectation}");
+
+            Console.WriteLine($"[EvidenceDownload] Building LaTeX document content...");
             StringBuilder contents = new StringBuilder();
 
             contents.AppendLine(@"\def\carphotoid{" + currentProject.PhotoId + "}");
@@ -380,35 +434,47 @@ namespace tasklist.Controllers
             contents.AppendLine(@"\input{intro}");
             contents.AppendLine(@"\newpage");
             contents.AppendLine(@"\section{Record of evidence of the intervention}");
+            Console.WriteLine($"[EvidenceDownload] LaTeX header built successfully");
 
             List<CamundaHistoryTask> historyTasks = new();
             List<Models.Task> relatedTasks = new();
 
+            Console.WriteLine($"[EvidenceDownload] Fetching process instances from case...");
             List<CamundaProcessInstance> processInstances = await _camundaService.GetProccessInstancesFromCaseAsync(caseInstanceId);
-            // gather the whole history by joining the history of the multiple diagrams
+            Console.WriteLine($"[EvidenceDownload] Found {processInstances.Count} process instances");
+
             foreach (CamundaProcessInstance instance in processInstances)
             {
+                Console.WriteLine($"[EvidenceDownload] Processing instance: {instance.Id}");
                 List<CamundaHistoryTask> diagramHistoryTasks = await _camundaService.GetDiagramTaskHistoryAsync(instance.Id);
                 historyTasks = historyTasks.Concat(diagramHistoryTasks).ToList();
+                Console.WriteLine($"[EvidenceDownload] Added {diagramHistoryTasks.Count} history tasks from instance");
 
                 List<Models.Task> diagramRelatedTasks = _taskService.GetByProcessInstanceId(instance.Id);
                 relatedTasks = relatedTasks.Concat(diagramRelatedTasks).ToList();
+                Console.WriteLine($"[EvidenceDownload] Added {diagramRelatedTasks.Count} related tasks from instance");
             }
 
-            // remove current tasks if they exist
             historyTasks = historyTasks.Where(t => t.EndTime != null).ToList();
+            Console.WriteLine($"[EvidenceDownload] Total completed history tasks: {historyTasks.Count}");
 
-            // organize the entire history by 'StartTime'
             historyTasks = historyTasks.OrderBy(t => t.StartTime).ToList();
+            Console.WriteLine($"[EvidenceDownload] History tasks sorted by start time");
 
             var definitions = new Dictionary<string, DefinitionAssociations>();
-            
+
             var changes = false;
             var tempContents = new StringBuilder();
+
+            Console.WriteLine($"[EvidenceDownload] Starting to process {historyTasks.Count} history tasks...");
+            int taskCounter = 0;
 
             // make the connection between the history tasks from camunda and the tasks saved in our database
             foreach (CamundaHistoryTask historyTask in historyTasks)
             {
+                taskCounter++;
+                Console.WriteLine($"[EvidenceDownload] Processing history task {taskCounter}/{historyTasks.Count}: {historyTask.ActivityName} (ActivityId: {historyTask.ActivityId})");
+
                 var sub = "sub";
                 if (historyTask.RootProcessInstanceId == historyTask.ProcessInstanceId)
                 {
@@ -425,14 +491,22 @@ namespace tasklist.Controllers
                     && rt.ActivityId == historyTask.ActivityId));
 
                 if (taskFound == null)
+                {
+                    Console.WriteLine($"[EvidenceDownload] No matching task found in database, skipping");
                     continue;
-                
+                }
+
+                Console.WriteLine($"[EvidenceDownload] Task found in database: {taskFound.Id}");
+
                 var videos = new List<PinterestPin>();
                 var images = new List<PinterestPin>();
                 if(taskFound.BoardSectionId != null)
                 {
+                    Console.WriteLine($"[EvidenceDownload] Fetching pins from section: {taskFound.BoardSectionId}");
                     var pins = await _pinterestService.GetPinsFromSection(currentProject.PinterestBoardId, taskFound.BoardSectionId);
                     if (pins != null)
+                    {
+                        Console.WriteLine($"[EvidenceDownload] Found {pins.Count} pins in section");
                         foreach (var pin in pins)
                         {
                             var media = pin.Media;
@@ -443,56 +517,79 @@ namespace tasklist.Controllers
                             else if(type == "video")
                                 videos.Add(pin);
                         }
+                        Console.WriteLine($"[EvidenceDownload] Categorized: {images.Count} images, {videos.Count} videos");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"[EvidenceDownload] WARNING: No pins returned from section");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"[EvidenceDownload] Task has no BoardSectionId");
                 }
 
                 if (videos.Count == 0 && images.Count == 0 && (taskFound.CommentReport == null || taskFound.CommentReport == ""))
+                {
+                    Console.WriteLine($"[EvidenceDownload] Task has no content (no videos, images, or comments), skipping");
                     continue;
+                }
 
+                Console.WriteLine($"[EvidenceDownload] Task has content, adding to LaTeX document");
                 changes = true;
 
                 var processDefinition = await _camundaService.GetHistoryProcessInstanceAsync(taskFound.ProcessInstanceId);
                 var processDefinitionId = processDefinition.ProcessDefinitionId;
                 if (!definitions.ContainsKey(processDefinitionId))
                 {
-                    var xml = await GetDefinitionDiagram(processDefinitionId);
-                    using (var reader = new StringReader(xml))
+                    Console.WriteLine($"[EvidenceDownload] Fetching process definition diagram: {processDefinitionId}");
+                    try
                     {
-                        var textAnnotations = new Dictionary<string, string>();
-                        var associations = new Dictionary<string, string>();
-                        var textAnnotationId = "";
-                        var xmlReader = new XmlTextReader(reader);
-                        while (xmlReader.Read())
+                        var xml = await GetDefinitionDiagram(processDefinitionId);
+                        using (var reader = new StringReader(xml))
                         {
-                            switch (xmlReader.NodeType)
+                            var textAnnotations = new Dictionary<string, string>();
+                            var associations = new Dictionary<string, string>();
+                            var textAnnotationId = "";
+                            var xmlReader = new XmlTextReader(reader);
+                            while (xmlReader.Read())
                             {
-                                case XmlNodeType.Element:
-                                    if (xmlReader.Name == "textAnnotation")
-                                        while (xmlReader.MoveToNextAttribute())
-                                            if (xmlReader.Name == "id")
-                                                textAnnotationId = xmlReader.Value;
-                                    if (xmlReader.Name == "association")
-                                    {
-                                        var sourceRef = "";
-                                        var targetRef = "";
-                                        while (xmlReader.MoveToNextAttribute())
-                                            if (xmlReader.Name == "sourceRef")
-                                                sourceRef = xmlReader.Value;
-                                            else if (xmlReader.Name == "targetRef")
-                                                targetRef = xmlReader.Value;
-                                        associations.Add(sourceRef, targetRef);
-                                    }
-                                    break;
-                                case XmlNodeType.Text:
-                                    if (textAnnotationId != "")
-                                        textAnnotations.Add(textAnnotationId, xmlReader.Value);
-                                    break;
-                                case XmlNodeType.EndElement:
-                                    if (xmlReader.Name == "textAnnotation")
-                                        textAnnotationId = "";
-                                    break;
+                                switch (xmlReader.NodeType)
+                                {
+                                    case XmlNodeType.Element:
+                                        if (xmlReader.Name == "textAnnotation")
+                                            while (xmlReader.MoveToNextAttribute())
+                                                if (xmlReader.Name == "id")
+                                                    textAnnotationId = xmlReader.Value;
+                                        if (xmlReader.Name == "association")
+                                        {
+                                            var sourceRef = "";
+                                            var targetRef = "";
+                                            while (xmlReader.MoveToNextAttribute())
+                                                if (xmlReader.Name == "sourceRef")
+                                                    sourceRef = xmlReader.Value;
+                                                else if (xmlReader.Name == "targetRef")
+                                                    targetRef = xmlReader.Value;
+                                            associations.Add(sourceRef, targetRef);
+                                        }
+                                        break;
+                                    case XmlNodeType.Text:
+                                        if (textAnnotationId != "")
+                                            textAnnotations.Add(textAnnotationId, xmlReader.Value);
+                                        break;
+                                    case XmlNodeType.EndElement:
+                                        if (xmlReader.Name == "textAnnotation")
+                                            textAnnotationId = "";
+                                        break;
+                                }
                             }
+                            definitions.Add(processDefinitionId, new DefinitionAssociations() { Associations = associations, TextAnnotations = textAnnotations });
+                            Console.WriteLine($"[EvidenceDownload] Parsed XML - Found {textAnnotations.Count} annotations and {associations.Count} associations");
                         }
-                        definitions.Add(processDefinitionId, new DefinitionAssociations() { Associations = associations, TextAnnotations = textAnnotations });
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"[EvidenceDownload] ERROR parsing diagram XML: {ex.Message}");
                     }
                 }
                 var definitionAssociations = definitions[processDefinitionId];
@@ -515,25 +612,31 @@ namespace tasklist.Controllers
 
                 if (images.Count > 0)
                 {
+                    Console.WriteLine($"[EvidenceDownload] Processing {images.Count} images for task");
                     tempContents.AppendLine(@"\begin{multicols}{2}");
+                    int imageCounter = 0;
                     foreach (var i in images) {
-                        using (WebClient webClient = new WebClient())
+                        imageCounter++;
+                        Console.WriteLine($"[EvidenceDownload] Downloading image {imageCounter}/{images.Count}: {i.Id}");
+                        try
                         {
-                            byte[] dataArr = webClient.DownloadData(i.Media.Images["1200x"].Url);
-                            //save file to local
-                            System.IO.File.WriteAllBytes($"data/images/{i.Id}.jpg", dataArr);
+                            using (WebClient webClient = new WebClient())
+                            {
+                                byte[] dataArr = webClient.DownloadData(i.Media.Images["1200x"].Url);
+                                System.IO.File.WriteAllBytes($"data/images/{i.Id}.jpg", dataArr);
+                                Console.WriteLine($"[EvidenceDownload] Image saved: {i.Id}.jpg ({dataArr.Length} bytes)");
+                            }
+                            tempContents.AppendLine(@"\begin{figure}[H]");
+                            tempContents.AppendLine(@"\centering");
+                            tempContents.AppendLine(@"\href{https://www.pinterest.pt/pin/" + i.Id + @"}{\includegraphics[width=\linewidth]{" + i.Id + "}}");
+                            tempContents.AppendLine(@"\caption{"+ i.Note + "}");
+                            tempContents.AppendLine(@"\vspace{10pt}");
+                            tempContents.AppendLine(@"\end{figure}");
                         }
-                        /*tempContents.AppendLine(@"\href{https://www.pinterest.pt/pin/" + i.Id + @"}{\includegraphics[width=\linewidth]{" + i.Id + "}}");
-                        tempContents.AppendLine(@"\begin{minipage}{\linewidth}");
-                        tempContents.AppendLine(@"\captionof{figure}{"+ i.Note + "}");
-                        tempContents.AppendLine(@"\end{minipage}");*/
-                        tempContents.AppendLine(@"\begin{figure}[H]");
-                        tempContents.AppendLine(@"\centering");
-                        tempContents.AppendLine(@"\href{https://www.pinterest.pt/pin/" + i.Id + @"}{\includegraphics[width=\linewidth]{" + i.Id + "}}");
-                        tempContents.AppendLine(@"\caption{"+ i.Note + "}");
-                        tempContents.AppendLine(@"\vspace{10pt}");
-                        tempContents.AppendLine(@"\end{figure}");
-
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"[EvidenceDownload] ERROR downloading image {i.Id}: {ex.Message}");
+                        }
                     }
                     tempContents.AppendLine(@"\end{multicols}");
                 }
@@ -541,55 +644,82 @@ namespace tasklist.Controllers
             }
             if (changes)
                 contents.Append(tempContents);
-            
+
+            Console.WriteLine($"[EvidenceDownload] Finished processing history tasks");
+            Console.WriteLine($"[EvidenceDownload] LaTeX document length: {contents.Length} characters");
+
             string path = "data/document.tex";
             try
             {
-                // Create the file, or overwrite if the file exists.
+                Console.WriteLine($"[EvidenceDownload] Writing LaTeX file to: {path}");
                 using (FileStream fs = System.IO.File.Create(path))
                 {
                     byte[] info = new UTF8Encoding(true).GetBytes(contents.ToString());
-                    // Add some information to the file.
                     fs.Write(info, 0, info.Length);
+                    Console.WriteLine($"[EvidenceDownload] LaTeX file written successfully ({info.Length} bytes)");
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Tex file creation error:");
+                Console.WriteLine($"[EvidenceDownload] ERROR: Tex file creation error:");
                 Console.WriteLine(ex.ToString());
+                return StatusCode(500, "Failed to create LaTeX file");
             }
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
+                Console.WriteLine($"[EvidenceDownload] Running pdflatex to generate PDF (2 passes)...");
                 ProcessStartInfo startInfo = new ProcessStartInfo() { FileName = "/bin/bash", Arguments = "pdflatex.sh", WorkingDirectory = "data" };
                 Process proc = new Process() { StartInfo = startInfo };
                 for(int i = 0; i<2; i++)
                 {
+                    Console.WriteLine($"[EvidenceDownload] Starting pdflatex pass {i+1}/2");
                     proc.Start();
                     proc.WaitForExit();
+                    Console.WriteLine($"[EvidenceDownload] pdflatex pass {i+1} completed with exit code: {proc.ExitCode}");
                 }
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
+                Console.WriteLine($"[EvidenceDownload] Windows platform detected - LaTeX compilation skipped");
                 Console.WriteLine(contents.ToString());
             }
 
+            Console.WriteLine($"[EvidenceDownload] Cleaning up image files...");
             string[] files = Directory.GetFiles("data/images");
             foreach (string file in files)
+            {
                 System.IO.File.Delete(file);
-            
+            }
+            Console.WriteLine($"[EvidenceDownload] Deleted {files.Length} image files");
+
             string base64 = "";
             if (System.IO.File.Exists($"data/template.pdf"))
             {
+                Console.WriteLine($"[EvidenceDownload] Reading generated PDF file...");
                 byte[] bytes = System.IO.File.ReadAllBytes($"data/template.pdf");
                 base64 = Convert.ToBase64String(bytes);
+                Console.WriteLine($"[EvidenceDownload] PDF converted to base64 ({bytes.Length} bytes, base64 length: {base64.Length})");
+            }
+            else
+            {
+                Console.WriteLine($"[EvidenceDownload] ERROR: PDF file not found at data/template.pdf");
             }
 
+            Console.WriteLine($"[EvidenceDownload] Cleaning up temporary files...");
             files = Directory.GetFiles("data");
+            int deletedCount = 0;
             foreach (string file in files)
+            {
                 if (!file.Contains("template.tex") && !file.Contains("intro.tex") && !file.Contains("pdflatex.sh"))
+                {
                     System.IO.File.Delete(file);
-            
+                    deletedCount++;
+                }
+            }
+            Console.WriteLine($"[EvidenceDownload] Deleted {deletedCount} temporary files");
+
+            Console.WriteLine($"[EvidenceDownload] Evidence generation complete, returning {(base64.Length > 0 ? "PDF" : "empty response")}");
             return base64;
         }
 

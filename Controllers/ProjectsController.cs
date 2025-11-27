@@ -334,6 +334,9 @@ namespace tasklist.Controllers
             var account = _credentialsService.GetAccount(currentProject.OwnerEmail);
             if (account == null) return NotFound();
 
+            if(!await _pinterestService.CheckAndUpdateCredentialsAsync())
+                return Unauthorized();
+
             var boardPins= await _pinterestService.GetPinsFromBoard(currentProject.PinterestBoardId);
 
             var mainImage = boardPins?.FindLast(i => i.Id == currentProject.PhotoId);

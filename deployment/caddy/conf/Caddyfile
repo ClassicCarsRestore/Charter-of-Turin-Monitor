@@ -1,0 +1,3 @@
+charterturinmonitor.raimundobranco.com {
+    reverse_proxy :5000
+}

@@ -19,5 +19,5 @@ RUN apt-get install -y texlive-latex-base
 RUN apt-get install -y texlive-latex-extra
 
 COPY --from=build /build/published ./
-EXPOSE 5000
+
 ENTRYPOINT ["dotnet", "tasklist.dll"]

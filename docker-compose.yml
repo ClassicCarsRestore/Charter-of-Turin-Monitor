@@ -64,8 +64,27 @@
       - ./deployment/caddy/conf:/etc/caddy
       - caddy_data:/data
       - caddy_config:/config
+    networks:
+      - caddy_net
+
+  authentik-proxy:
+    image: ghcr.io/goauthentik/proxy:2025.10.1
+    container_name: authentik-proxy
+    ports:
+      - "9000:9000"
+    environment:
+      AUTHENTIK_HOST: ${AUTHENTIK_HOST}
+      AUTHENTIK_INSECURE: "false"
+      AUTHENTIK_TOKEN: ${AUTHENTIK_TOKEN}
+    restart: unless-stopped
+    networks:
+      - caddy_net
 
 volumes:
   mongo-data:
   caddy_data:
   caddy_config:
+
+networks:
+  caddy_net:
+    external: true

@@ -22,9 +22,17 @@ namespace tasklist
         public static string Platform_URL => GetRequiredEnvVar("PLATFORM_URL");
         public static string Blockchain_API_URL => GetEnvVar("BLOCKCHAIN_API_URL");
 
+        public static string Inventory_API_URL => GetEnvVar("INVENTORY_API_URL");
+
         // JWT and Authentication
         public static string Secret => GetRequiredEnvVar("JWT_SECRET");
         public static string Salt => GetRequiredEnvVar("PASSWORD_SALT");
+
+        // Authentik Configuration
+        public static string AuthentikTokenUrl => GetRequiredEnvVar("AUTHENTIK_TOKEN_URL");
+        public static string Inventory_Client_ID => GetRequiredEnvVar("INVENTORY_CLIENT_ID");
+        public static string Service_Account_Username => GetRequiredEnvVar("SERVICE_ACCOUNT_USERNAME");
+        public static string Service_Account_Password => GetRequiredEnvVar("SERVICE_ACCOUNT_PASSWORD");
 
         // API Secrets
         public static string Camera_Hub_Secret => GetRequiredEnvVar("CAMERA_HUB_SECRET");

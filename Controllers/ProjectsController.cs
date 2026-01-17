@@ -30,9 +30,11 @@ namespace tasklist.Controllers
         private readonly TaskService _taskService;
         private readonly ActivityAndLocationHistoryService _activityAndLocationHistoryService;
 
+        private readonly InventoryService _inventoryService;
+
 
         public ProjectsController(LoginCredentialsService credentialsService, ProjectService projectService, CamundaService camundaService, 
-            PinterestService pinterestService, TaskService taskService, ActivityAndLocationHistoryService activityAndLocationHistoryService)
+            PinterestService pinterestService, TaskService taskService, ActivityAndLocationHistoryService activityAndLocationHistoryService, InventoryService inventoryService)
         {
             _credentialsService = credentialsService;
             _projectService = projectService;
@@ -40,7 +42,7 @@ namespace tasklist.Controllers
             _pinterestService = pinterestService;
             _taskService = taskService;
             _activityAndLocationHistoryService = activityAndLocationHistoryService;
-
+            _inventoryService = inventoryService;
         }
 
         // GET: api/Projects
@@ -280,6 +282,21 @@ namespace tasklist.Controllers
 
             _activityAndLocationHistoryService.Create(activityAndLocationHistory);
 
+            var inventoryData = new InventoryProjectDTO
+            {
+                CharterId = project.Id,
+                Make = projectForm.Make,
+                Model = projectForm.Model,
+                Year = projectForm.Year,
+                LicencePlate = sanitizedLicencePlate,
+                Country = projectForm.Country,
+                ChassisNo = projectForm.ChassisNo,
+                EngineNo = projectForm.EngineNo,
+                OwnerEmail = projectForm.OwnerEmail,
+                EndDate = project.EndDate
+            };
+            // call inventory service to create inventory record
+            await _inventoryService.NotifyProjectCreatedAsync(inventoryData);
             // start the process in Camunda with the generated ID
             await _camundaService.StartProcessInstanceAsync("restoration_base", generatedId, projectForm);
 

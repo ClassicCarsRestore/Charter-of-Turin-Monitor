@@ -2,12 +2,12 @@ charterturinmonitor.raimundobranco.com {
 
     handle_path /outpost.goauthentik.io/\* {
 
-        reverse_proxy http://authentik-proxy:9000 {
+        reverse_proxy authentik-proxy:9000 {
             header_up Host {host}
         }
     }
 
-    forward_auth http://authentik-proxy:9000 {
+    forward_auth authentik-proxy:9000 {
         uri /outpost.goauthentik.io/auth/caddy
 
         copy_headers X-Authentik-Username X-Authentik-Groups X-Authentik-Email X-Authentik-Name X-Authentik-Uid X-Authentik-Jwt X-Authentik-Meta-Jwks X-Authentik-Meta-Outpost X-Authentik-Meta-Provider X-Authentik-Meta-App X-Authentik-Meta-Version

@@ -30,9 +30,8 @@ namespace tasklist
 
         // Authentik Configuration
         public static string AuthentikTokenUrl => GetRequiredEnvVar("AUTHENTIK_TOKEN_URL");
-        public static string Inventory_Client_ID => GetRequiredEnvVar("INVENTORY_CLIENT_ID");
-        public static string Service_Account_Username => GetRequiredEnvVar("SERVICE_ACCOUNT_USERNAME");
-        public static string Service_Account_Password => GetRequiredEnvVar("SERVICE_ACCOUNT_PASSWORD");
+        public static string Authentik_Client_ID => GetRequiredEnvVar("AUTHENTIK_CLIENT_ID");
+        public static string Authentik_Client_Secret => GetRequiredEnvVar("AUTHENTIK_CLIENT_SECRET");
 
         // API Secrets
         public static string Camera_Hub_Secret => GetRequiredEnvVar("CAMERA_HUB_SECRET");

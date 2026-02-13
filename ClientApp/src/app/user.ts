@@ -1,11 +1,3 @@
-////export class UserForm {
-////  constructor(
-////    public email: string,
-////    public password: string,
-////    public role: string
-////  ) { }
-////}
-
 export class Account {
   constructor(
     public email: string,
@@ -21,11 +13,3 @@ export class Details {
     public name: string
   ) { }
 }
-
-export class ChangePasswordForm {
-  constructor(
-    public oldPassword: string,
-    public password: string
-  ) { }
-}
-

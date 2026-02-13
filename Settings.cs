@@ -24,8 +24,7 @@ namespace tasklist
 
         public static string Inventory_API_URL => GetEnvVar("INVENTORY_API_URL");
 
-        // JWT and Authentication
-        public static string Secret => GetRequiredEnvVar("JWT_SECRET");
+        // Authentication
         public static string Salt => GetRequiredEnvVar("PASSWORD_SALT");
 
         // Authentik Configuration

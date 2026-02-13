@@ -55,15 +55,14 @@ namespace tasklist.Controllers
         [Authorize]
         public async Task<ActionResult<IEnumerable<ProjectDTO>>> GetOpenProjectsAsync()
         {
-            ClaimsPrincipal claims = JwtManager.GetPrincipal(JwtManager.GetToken(Request));
-            string role = claims.FindFirst(c => c.Type == ClaimTypes.Role).Value;
+            string role = User.FindFirst(c => c.Type == ClaimTypes.Role)?.Value;
 
             List<Project> projects;
 
             // get the projects created in the system
             if (role == "owner")
             {
-                string email = claims.FindFirst(c => c.Type == ClaimTypes.Email).Value;
+                string email = User.FindFirst(c => c.Type == ClaimTypes.Email)?.Value;
                 projects = _projectService.GetOpenProjects(email);
             }
             else
@@ -93,15 +92,14 @@ namespace tasklist.Controllers
         [Authorize]
         public ActionResult<IEnumerable<ProjectDTO>> GetClosedProjectsAsync()
         {
-            ClaimsPrincipal claims = JwtManager.GetPrincipal(JwtManager.GetToken(Request));
-            string role = claims.FindFirst(c => c.Type == ClaimTypes.Role).Value;
+            string role = User.FindFirst(c => c.Type == ClaimTypes.Role)?.Value;
 
             List<Project> projects;
 
             // get the projects created in the system
             if (role == "owner")
             {
-                string email = claims.FindFirst(c => c.Type == ClaimTypes.Email).Value;
+                string email = User.FindFirst(c => c.Type == ClaimTypes.Email)?.Value;
                 projects = _projectService.GetClosedProjects(email);
             }
             else
@@ -137,11 +135,10 @@ namespace tasklist.Controllers
         [Authorize]
         public async Task<ActionResult<ProjectDTO>> GetProjectDTO(string id)
         {
-            ClaimsPrincipal claims = JwtManager.GetPrincipal(JwtManager.GetToken(Request));
-            string role = claims.FindFirst(c => c.Type == ClaimTypes.Role).Value;
+            string role = User.FindFirst(c => c.Type == ClaimTypes.Role)?.Value;
 
             Project project = _projectService.Get(id);
-            if (role == "owner" && project.OwnerEmail != claims.FindFirst(c => c.Type == ClaimTypes.Email).Value)
+            if (role == "owner" && project.OwnerEmail != User.FindFirst(c => c.Type == ClaimTypes.Email)?.Value)
             {
                 return Forbid();
             }
@@ -342,8 +339,7 @@ namespace tasklist.Controllers
             ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
             Console.WriteLine($"[EvidenceDownload] SSL/TLS configuration set: TLS 1.2/1.3 enabled");
 
-            ClaimsPrincipal claims = JwtManager.GetPrincipal(JwtManager.GetToken(Request));
-            string role = claims.FindFirst(c => c.Type == ClaimTypes.Role).Value;
+            string role = User.FindFirst(c => c.Type == ClaimTypes.Role)?.Value;
             Console.WriteLine($"[EvidenceDownload] User role: {role}");
 
             Project currentProject = _projectService.GetByCaseInstanceId(caseInstanceId);
@@ -356,7 +352,7 @@ namespace tasklist.Controllers
 
             Console.WriteLine($"[EvidenceDownload] Project found: {currentProject.Id}, Owner: {currentProject.OwnerEmail}");
 
-            if (role == "owner" && currentProject.OwnerEmail != claims.FindFirst(c => c.Type == ClaimTypes.Email).Value && currentProject.IsComplete)
+            if (role == "owner" && currentProject.OwnerEmail != User.FindFirst(c => c.Type == ClaimTypes.Email)?.Value && currentProject.IsComplete)
             {
                 Console.WriteLine($"[EvidenceDownload] ERROR: Authorization failed for owner");
                 return Forbid();

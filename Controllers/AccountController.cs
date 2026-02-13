@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System;
 using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
 using Newtonsoft.Json;
 
 namespace tasklist.Controllers
@@ -22,18 +24,6 @@ namespace tasklist.Controllers
         {
             _credentialsService = credentialsService;
             _pinterestService = pinterestService;
-        }
-
-        [HttpPost("Login", Name = "Login")]
-        public ActionResult<LoginCredentialsResponse> Login(LoginCredentialsDTO creds)
-        {
-            creds.Password = UtilManager.EncryptPassword(creds.Password);
-            string role = _credentialsService.Login(creds);
-
-            if (role == null)
-                return Unauthorized();
-
-            return new LoginCredentialsResponse(role, JwtManager.GenerateToken(creds.Email, role));
         }
 
         [HttpGet("Pinterest/Check", Name = "PinterestCheck")]
@@ -80,7 +70,12 @@ namespace tasklist.Controllers
             {
                 return BadRequest();
             }
+
             var password = UtilManager.RandString(10);
+
+            var authentikCreated = await CreateAuthentikUserAsync(trimmedEmail, account.Name, password, account.Role);
+            if (!authentikCreated)
+                return StatusCode(500, "Failed to create user in Authentik");
 
             if (_credentialsService.Create(new LoginCredentials(trimmedEmail, UtilManager.EncryptPassword(password), account.Role, account.Name))) {
                 
@@ -106,7 +101,7 @@ namespace tasklist.Controllers
                                 password = password,
                                 orgname = "Org1",
                                 firstname = accountName[0],
-                                surname = accountName[1],
+                                surname = accountName.Length > 1 ? accountName[1] : "",
                                 country = "Portugal"
                             };
                             string jsonContent = JsonConvert.SerializeObject(formData);
@@ -127,33 +122,99 @@ namespace tasklist.Controllers
             return Conflict();
         }
 
-        [HttpPost("Password", Name = "ChangePassword")]
-        [Authorize]
-        public ActionResult ChangePassword(PasswordDTO passwordForm)
+        private static async Task<bool> CreateAuthentikUserAsync(string email, string name, string password, string group)
         {
-            ClaimsPrincipal claims = JwtManager.GetPrincipal(JwtManager.GetToken(Request));
-
-            var creds = new LoginCredentialsDTO
+            try
             {
-                Email = claims.FindFirst(c => c.Type == ClaimTypes.Email).Value,
-                Password = UtilManager.EncryptPassword(passwordForm.OldPassword)
+                string token = await GetAuthentikApiTokenAsync();
+
+                using var client = new HttpClient();
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+                var userData = new
+                {
+                    username = email,
+                    email = email,
+                    name = name,
+                    is_active = true,
+                    groups = Array.Empty<string>()
+                };
+
+                var userJson = JsonConvert.SerializeObject(userData);
+                var userContent = new StringContent(userJson, Encoding.UTF8, "application/json");
+
+                var baseUrl = Settings.AuthentikTokenUrl.Replace("/application/o/token/", "");
+                var response = await client.PostAsync($"{baseUrl}/api/v3/core/users/", userContent);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var error = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine($"Failed to create Authentik user: {response.StatusCode} - {error}");
+                    return false;
+                }
+
+                var responseBody = JsonConvert.DeserializeObject<dynamic>(await response.Content.ReadAsStringAsync());
+                int userId = responseBody.pk;
+
+                var passwordData = new { password = password };
+                var passwordJson = JsonConvert.SerializeObject(passwordData);
+                var passwordContent = new StringContent(passwordJson, Encoding.UTF8, "application/json");
+                await client.PostAsync($"{baseUrl}/api/v3/core/users/{userId}/set_password/", passwordContent);
+
+                var groupsResponse = await client.GetAsync($"{baseUrl}/api/v3/core/groups/?name={Uri.EscapeDataString(group)}");
+                if (groupsResponse.IsSuccessStatusCode)
+                {
+                    var groupsBody = JsonConvert.DeserializeObject<dynamic>(await groupsResponse.Content.ReadAsStringAsync());
+                    if (groupsBody.results.Count > 0)
+                    {
+                        string groupPk = groupsBody.results[0].pk;
+                        List<int> existingUsers = JsonConvert.DeserializeObject<List<int>>(
+                            JsonConvert.SerializeObject(groupsBody.results[0].users));
+                        existingUsers.Add(userId);
+
+                        var groupUpdate = new { users = existingUsers };
+                        var groupJson = JsonConvert.SerializeObject(groupUpdate);
+                        var groupContent = new StringContent(groupJson, Encoding.UTF8, "application/json");
+                        await client.PatchAsync($"{baseUrl}/api/v3/core/groups/{groupPk}/", groupContent);
+                    }
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error creating Authentik user: {ex.Message}");
+                return false;
+            }
+        }
+
+        private static async Task<string> GetAuthentikApiTokenAsync()
+        {
+            using var client = new HttpClient();
+            var authBytes = Encoding.UTF8.GetBytes($"{Settings.Authentik_Client_ID}:{Settings.Authentik_Client_Secret}");
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Basic", Convert.ToBase64String(authBytes));
+
+            var requestData = new List<KeyValuePair<string, string>>
+            {
+                new("grant_type", "client_credentials"),
+                new("scope", "openid profile email")
             };
 
-            if(_credentialsService.Login(creds) == null)
-                return BadRequest();
+            var response = await client.PostAsync(Settings.AuthentikTokenUrl, new FormUrlEncodedContent(requestData));
+            response.EnsureSuccessStatusCode();
 
-            creds.Password = UtilManager.EncryptPassword(passwordForm.Password);
-            _credentialsService.ChangePassword(creds);
-
-            return Ok();
+            var json = await response.Content.ReadAsStringAsync();
+            var doc = System.Text.Json.JsonDocument.Parse(json);
+            return doc.RootElement.GetProperty("access_token").GetString();
         }
 
         [HttpPost("Details", Name = "ChangeDetails")]
         [Authorize]
         public ActionResult ChangeDetails(Details detailsForm)
         {
-            ClaimsPrincipal claims = JwtManager.GetPrincipal(JwtManager.GetToken(Request));
-            _credentialsService.ChangeDetails(claims.FindFirst(c => c.Type == ClaimTypes.Email).Value, detailsForm);
+            string email = User.FindFirst(c => c.Type == ClaimTypes.Email)?.Value;
+            _credentialsService.ChangeDetails(email, detailsForm);
 
             return Ok();
         }
@@ -167,10 +228,12 @@ namespace tasklist.Controllers
         [Authorize]
         public ActionResult<Account> GetSelf()
         {
-            ClaimsPrincipal claims = JwtManager.GetPrincipal(JwtManager.GetToken(Request));
-            string email = claims.FindFirst(c => c.Type == ClaimTypes.Email).Value;
+            string email = User.FindFirst(c => c.Type == ClaimTypes.Email)?.Value;
+            string role = User.FindFirst(c => c.Type == ClaimTypes.Role)?.Value;
             var account = _credentialsService.GetAccount(email);
-            if(claims.FindFirst(c => c.Type == ClaimTypes.Role).Value != account.Role)
+            if (account == null)
+                return NotFound();
+            if (role != account.Role)
                 return null;
             return account;
         }
@@ -179,8 +242,8 @@ namespace tasklist.Controllers
         [Authorize]
         public ActionResult<Details> GetDetails()
         {
-            ClaimsPrincipal claims = JwtManager.GetPrincipal(JwtManager.GetToken(Request));
-            return _credentialsService.GetDetails(claims.FindFirst(c => c.Type == ClaimTypes.Email).Value);
+            string email = User.FindFirst(c => c.Type == ClaimTypes.Email)?.Value;
+            return _credentialsService.GetDetails(email);
         }
 
         [HttpPost("Delete", Name = "Delete")]

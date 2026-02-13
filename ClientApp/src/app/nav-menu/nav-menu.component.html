@@ -1,27 +1,19 @@
 <header>
-  <nav
-    class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3"
-  >
+  <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
     <div class="container">
       <a class="navbar-brand vertical-center" matRipple [routerLink]="['/']">
         <!--<img src="RJBlogoLongo.png" height="30" alt="">-->
-        <img src="RJBlogo.png" height="30" class="icon"/>Charter of Turin Monitor
+        <img src="RJBlogo.png" height="30" class="icon" />Charter of Turin Monitor
       </a>
       <!--<a class="navbar-brand" matRipple [routerLink]="['/']">Charter of Turin Monitor</a>-->
-      <button class="navbar-toggler"
-              type="button"
-              data-toggle="collapse"
-              data-target=".navbar-collapse"
-              aria-label="Toggle navigation"
-              [attr.aria-expanded]="isExpanded"
-              (click)="toggle()">
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse"
+        aria-label="Toggle navigation" [attr.aria-expanded]="isExpanded" (click)="toggle()">
         <span class="navbar-toggler-icon"></span>
       </button>
-      <div class="navbar-collapse collapse d-sm-inline-flex justify-content-end"
-           [ngClass]="{ show: isExpanded }">
+      <div class="navbar-collapse collapse d-sm-inline-flex justify-content-end" [ngClass]="{ show: isExpanded }">
         <ul class="navbar-nav flex-grow">
           <li class="nav-item" matRipple [routerLinkActive]="['link-active']"
-              [routerLinkActiveOptions]="{ exact: true }" *ngIf="(loggedInRole$ | async) != ''">
+            [routerLinkActiveOptions]="{ exact: true }" *ngIf="(loggedInRole$ | async) != ''">
             <a class="nav-link text-dark" [routerLink]="['/projects']">Projects</a>
           </li>
           <!--<li class="nav-item" matRipple [routerLinkActive]="['link-active']" *ngIf="(loggedInRole$ | async) == 'manager' || (loggedInRole$ | async) == 'admin'">
@@ -33,14 +25,16 @@
           <li class="nav-item" matRipple [routerLinkActive]="['link-active']" *ngIf="(loggedInRole$ | async) == ''">
             <a class="nav-link text-dark" [routerLink]="['/login']">Login</a>
           </li>
-          <li class="nav-item" matRipple [routerLinkActive]="['link-active']" *ngIf="(loggedInRole$ | async) == 'admin'">
+          <li class="nav-item" matRipple [routerLinkActive]="['link-active']"
+            *ngIf="(loggedInRole$ | async) == 'admin'">
             <a class="nav-link text-dark" [routerLink]="['/admin']">Admin Page</a>
           </li>
           <li class="nav-item" matRipple [routerLinkActive]="['link-active']" *ngIf="(loggedInRole$ | async) != ''">
             <a class="nav-link text-dark" [routerLink]="['/profile']">Profile</a>
           </li>
-          <li class="nav-item" matRipple id="logout" [routerLinkActive]="['link-active']" *ngIf="(loggedInRole$ | async) != ''">
-            <a class="nav-link text-dark" (click)="logout()" [routerLink]="['/login']">Logout</a>
+          <li class="nav-item" matRipple id="logout" [routerLinkActive]="['link-active']"
+            *ngIf="(loggedInRole$ | async) != ''">
+            <a class="nav-link text-dark" (click)="logout()" style="cursor: pointer;">Logout</a>
           </li>
 
         </ul>

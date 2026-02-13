@@ -154,13 +154,12 @@ namespace tasklist.Controllers
 		[HttpGet("{caseInstanceId}/History", Name = "GetFullProjectHistory")]
 		public async Task<ActionResult<List<FullHistoryTaskDTO>>> GetFullProjectHistoryAsync(string caseInstanceId)
 		{
-			ClaimsPrincipal claims = JwtManager.GetPrincipal(JwtManager.GetToken(Request));
-			string role = claims.FindFirst(c => c.Type == ClaimTypes.Role).Value;
+			string role = User.FindFirst(c => c.Type == ClaimTypes.Role)?.Value;
 
 			Project currentProject = _projectService.GetByCaseInstanceId(caseInstanceId);
 
 			if (currentProject == null) return NotFound();
-			if (role == "owner" && currentProject.OwnerEmail !=claims.FindFirst(c => c.Type == ClaimTypes.Email).Value)
+			if (role == "owner" && currentProject.OwnerEmail != User.FindFirst(c => c.Type == ClaimTypes.Email)?.Value)
 			{
 				return Forbid();
 			}

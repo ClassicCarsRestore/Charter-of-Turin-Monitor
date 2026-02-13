@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -7,11 +7,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System;
 using System.Linq;
-using System.Text;
+using tasklist.Filters;
 using tasklist.Models;
 using tasklist.Services;
 
@@ -149,24 +148,9 @@ namespace tasklist
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "tasklist_api", Version = "v1" });
             });
 
-            var key = Convert.FromBase64String(Settings.Secret);
-            services.AddAuthentication(x =>
-            {
-                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-            .AddJwtBearer(x =>
-            {
-                x.RequireHttpsMetadata = false;
-                x.SaveToken = true;
-                x.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidateIssuer = false,
-                    ValidateAudience = false
-                };
-            });
+            services.AddAuthentication("AuthentikProxy")
+                .AddScheme<AuthenticationSchemeOptions, AuthentikProxyAuthHandler>(
+                    "AuthentikProxy", null);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

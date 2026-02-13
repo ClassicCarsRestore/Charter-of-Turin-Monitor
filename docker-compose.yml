@@ -25,8 +25,7 @@
       CameraHubDatabaseSettings__Host: mongo
       VirtualMapLocationsDatabaseSettings__Host: mongo
       ActivityAndLocationHistoryDatabaseSettings__Host: mongo
-      # JWT and Authentication
-      JWT_SECRET: ${JWT_SECRET}
+      # Authentication
       PASSWORD_SALT: ${PASSWORD_SALT}
       # API Secrets
       CAMERA_HUB_SECRET: ${CAMERA_HUB_SECRET}
@@ -50,6 +49,13 @@
       PINTEREST_COVER_IMAGE_URL: ${PINTEREST_COVER_IMAGE_URL}
       # CORS Configuration
       CORS_ORIGINS: ${CORS_ORIGINS}
+      # Authentik Configuration
+      AUTHENTIK_TOKEN_URL: ${AUTHENTIK_TOKEN_URL}
+      AUTHENTIK_CLIENT_ID: ${AUTHENTIK_CLIENT_ID}
+      AUTHENTIK_CLIENT_SECRET: ${AUTHENTIK_CLIENT_SECRET}
+    networks:
+      - default
+      - caddy_net
     depends_on:
       - mongo
 
@@ -85,6 +91,7 @@ volumes:
   mongo-data:
   caddy_data:
   caddy_config:
+
 
 networks:
   caddy_net:
